@@ -1,0 +1,115 @@
+.btn {
+  width: 130px;
+  border: 1px solid #EFEFEF;
+  border-radius: 30px;
+  background-color: white;
+  align-items: center;
+  text-align: center;
+}
+.btn:hover {
+  border-color: #4051EA;
+  transition: 0.4s all linear;
+}
+
+header {
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.6);
+}
+header nav {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+header nav div > ul {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 85px;
+  line-height: 85px;
+}
+header nav div > ul > li {
+  margin-right: 40px;
+}
+header nav ul li {
+  position: relative;
+}
+header nav ul li a {
+  color: #222222 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+header nav ul li ul {
+  z-index: -1;
+  position: absolute;
+  min-width: 200px;
+  top: 130%;
+  left: 0;
+  background-color: white;
+}
+header nav ul li ul li {
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  border-bottom: 1px solid #ddd;
+  padding-left: 20%;
+}
+header nav ul li ul li:hover {
+  background-color: #384AEB;
+}
+header nav ul li ul li:hover a {
+  color: white !important;
+}
+header nav ul li:hover > ul {
+  transition: 0.2s all linear;
+  top: 100%;
+  z-index: 9999;
+}
+
+main {
+  background-image: linear-gradient(to right, #384AEB 35%, #F1F6F7 35%);
+}
+main .col-md-6 {
+  padding-top: 20%;
+}
+main .col-md-6 h4, main .col-md-6 p {
+  color: #555555;
+}
+
+.section1 .col-md-4, .section1 .col-md-3, .section2 .col-md-4, .section2 .col-md-3 {
+  padding: 0 !important;
+  padding-top: 10px !important;
+  position: relative;
+}
+.section1 .col-md-4 .top, .section1 .col-md-3 .top, .section2 .col-md-4 .top, .section2 .col-md-3 .top {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+.section1 .col-md-4 .top a div, .section1 .col-md-3 .top a div, .section2 .col-md-4 .top a div, .section2 .col-md-3 .top a div {
+  position: absolute;
+  bottom: 15%;
+  padding: 10px 15px 5px 15px;
+  background-color: #384AEB !important;
+  width: 50%;
+  color: white;
+  display: none;
+}
+.section1 .col-md-4:hover, .section1 .col-md-3:hover, .section2 .col-md-4:hover, .section2 .col-md-3:hover {
+  cursor: pointer;
+}
+.section1 .col-md-4:hover .top, .section1 .col-md-3:hover .top, .section2 .col-md-4:hover .top, .section2 .col-md-3:hover .top {
+  transition: 0.13s all linear;
+  height: 100%;
+}
+.section1 .col-md-4:hover .top div, .section1 .col-md-3:hover .top div, .section2 .col-md-4:hover .top div, .section2 .col-md-3:hover .top div {
+  display: block;
+}
+.section1 .col-md-4:nth-child(2), .section2 .col-md-4:nth-child(2) {
+  padding: 10px 10px 0 10px !important;
+}
+
+.section2 .col-md-3:hover .top {
+  height: 40%;
+}
+
+/*# sourceMappingURL=main.css.map */

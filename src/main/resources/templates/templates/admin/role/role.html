@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml"
+>
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Transaction list</title>
+
+    <link href="/images/shortcut_icon.png" rel="shortcut icon" type="image/png"/>
+    <link href="/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/datepicker/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/select2/select2.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/header.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/sidebar.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/content.css" rel="stylesheet" type="text/css">
+
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"
+          rel="stylesheet">
+
+    <style>
+        #singleUploadForm {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="wrapper toggled">
+
+    <div th:replace="fragments/admin/sidebar :: sidebar"></div>
+    <div th:replace="fragments/admin/header :: header(${title})"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-9 offset-3">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>id</th>
+                        <th>name</th>
+                        <th>info</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="role, iStat: ${roleList}">
+                        <td th:text="${iStat.index + 1}"></td>
+                        <td th:text="${role.id}"></td>
+                        <td th:text="${role.userRole}"></td>
+                        <td sec:authorize="hasAuthority('SUPER_ADMIN')">
+                            <button th:onclick="'getPermissionListByRoleId('+${role.id}+')'" class="btn btn-primary">Info</button>
+                        </td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-9 offset-3">
+                <input type="text" id="role_name">
+                <table class="table">
+                    <tbody>
+                    <tr th:each="permission, iStat: ${permissionList}">
+                        <td th:text="${permission.getPermission()}"></td>
+                        <td><label>
+                            <input name="roleId" type="checkbox" th:value="${permission.id}">
+                        </label></td>
+
+                    </tr>
+                    </tbody>
+                </table>
+                <button onclick="addRole()" type="submit" class="btn btn-success"> ADD ROLE</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                <h1 id="result"></h1>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/plugins/jquery/jquery-3.5.1.min.js"></script>
+<script src="/plugins/popper/popper.min.js"></script>
+<script src="/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="/plugins/select2/select2.min.js"></script>
+<script src="/plugins/datepicker/bootstrap-datepicker.min.js"></script>
+<script src="/plugins/custom_js/main.js"></script>
+<script>
+
+    function addRole() {
+        var permissionsIds = [];
+        $.each($("input[name='roleId']:checked"), function () {
+            permissionsIds.push($(this).val());
+        });
+        let role = {
+            name: $("#role_name").val(),
+            permission_id: permissionsIds,
+        }
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url: "/api/admin/role/add",
+            type: "POST",
+            data: JSON.stringify(role),
+            success: function (response) {
+                if (response.status === true) {
+                } else
+                    console.log('false 1')
+            },
+            error: function (request, status, error) {
+                alert(request.responseText("Qo'shildi"));
+                console.log('xato')
+            }
+        });
+
+    }
+function getPermissionListByRoleId(id){
+
+    console.log(id)
+
+    $.ajax({
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        url: "/api/admin/role/"+id,
+        type: "GET",
+        success: function (response) {
+            console.log(true)
+            $('#exampleModal').showModal()
+            $('#result').text(response.data)
+        },
+        error: function (response) {
+            console.log(response.data)
+        }
+    });
+}
+
+</script>
+</body>
+</html>

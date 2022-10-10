@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Transaction list</title>
+
+    <link href="/images/shortcut_icon.png" rel="shortcut icon" type="image/png"/>
+    <link href="/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/datepicker/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/select2/select2.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/header.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/sidebar.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/content.css" rel="stylesheet" type="text/css">
+
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"
+          rel="stylesheet">
+</head>
+
+<body>
+<div class="wrapper toggled">
+
+    <div th:replace="fragments/admin/sidebar :: sidebar"></div>
+    <div th:replace="fragments/admin/header :: header(${title})"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-9 offset-3">
+                <button  type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#exampleModal"
+                >Add Category</button>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>id</th>
+                        <th>name</th>
+                        <th>parent category</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="category, iStat: ${categoryList}">
+                        <td th:text="${iStat.index + 1}"></td>
+                        <td th:text="${category.getCategoryId()}"></td>
+                        <td th:text="${category.getName()}"></td>
+                        <td th:text="${category.getParentName()}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/api/admin/category/add}" method="post" th:object="${category}">
+                    <div class="form-group">
+                        <label for="name" >name</label>
+                        <input type="text" th:field="*{name}" placeholder="enter category name" id="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="name" > parent category</label>
+                        <select th:field="*{parentId}" name="" id="">
+                            <option value="0">No Category</option>
+                            <option
+                                    th:each="categoryy, iStat: ${categoryList}"
+                                    th:value="${categoryy.getCategoryId()}"
+                                    th:text="${categoryy.getName()}"
+                            ></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">add Category</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+<script src="/plugins/jquery/jquery-3.5.1.min.js"></script>
+<script src="/plugins/popper/popper.min.js"></script>
+<script src="/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="/plugins/select2/select2.min.js"></script>
+<script src="/plugins/datepicker/bootstrap-datepicker.min.js"></script>
+<script src="/plugins/custom_js/main.js"></script>
+<script>
+    function alertOnNotNumberInput(e){
+        if(isNaN(e.target.value)){
+            e.target.style.border = 'solid 1px #ff5722';
+        }else{
+            e.target.style.border = 'solid 1px #80bdff';
+        }
+    }
+
+    function resetColorToDefault(e){
+        if(!isNaN(e.target.value)){
+            e.target.style.border = 'solid 1px #ced4da';
+        }
+    }
+
+    function checkOrder(id){
+        console.log(id)
+        order(2)
+    }
+
+    function payOrder(id){
+        console.log(id)
+        order(5)
+    }
+
+    function order(state){
+
+        $.ajax({
+            url: "/admin/orders/state/?state="+state+"",
+            type: "GET",
+            success: function (response) {
+
+            },
+            error: function (request, status, error) {
+
+            }
+        });
+    }
+</script>
+</body>
+</html>

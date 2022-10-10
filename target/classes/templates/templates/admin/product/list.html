@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Transaction list</title>
+
+    <link href="/images/shortcut_icon.png" rel="shortcut icon" type="image/png"/>
+    <link href="/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/datepicker/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/select2/select2.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/header.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/sidebar.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/content.css" rel="stylesheet" type="text/css">
+
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"
+          rel="stylesheet">
+
+    <style>
+        #singleUploadForm{
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="wrapper toggled">
+
+    <div th:replace="fragments/admin/sidebar :: sidebar"></div>
+    <div th:replace="fragments/admin/header :: header(${title})"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-9 offset-3">
+                <button type="button" class="btn btn-primary float-right" data-toggle="modal"
+                        data-target="#exampleModal"
+                >Add Product
+                </button>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>id</th>
+                        <th>name</th>
+                        <th>price</th>
+                        <th>quantity</th>
+                        <th>category name</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product, iStat: ${productList}">
+                        <td th:text="${iStat.index + 1}"></td>
+                        <td th:text="${product.productId}"></td>
+                        <td th:text="${product.name}"></td>
+                        <td th:text="${product.price}"></td>
+                        <td th:text="${product.quantity}"></td>
+                        <td th:text="${product.categoryName}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!--modal for product add-->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title">Add Product</h5>
+                    <button th:onclick="'getCategories(' + ${7} + ');'" type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div th:id="product_details">
+
+                        <div class="form-group">
+                            <label for="name">name</label>
+                            <input type="text" placeholder="enter category name" id="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="name">category</label>
+                            <select name="" id="category">
+                                <option th:each="categoryy, iStat: ${categoryList}"
+                                        th:value="${categoryy.id}"
+                                        th:text="${categoryy.getName()}"
+                                >
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity">quantity</label>
+                            <input type="text" placeholder="enter category quantity "
+                                   id="quantity">
+                        </div>
+                        <div class="form-group">
+                            <label for="price">price</label>
+                            <input type="text" placeholder="enter category price " id="price">
+                        </div>
+                        <div class="form-group">
+                            <label for="params">params</label>
+                            <textarea type="text" id="params">
+                        </textarea>
+                        </div>
+
+                        <button onclick="addProduct()" type="submit" class="btn btn-primary">add Product</button>
+                    </div>
+                    <!--                    <form th:action="@{/api/admin/product/attachment/add} + ${productId}" >-->
+                    <!--                        <input type="file" name="file" class="form-control">-->
+                    <!--                        <input type="submit" class="btn btn-success">-->
+                    <!--                    </form>-->
+                </div>
+
+                <!--modal for attachment add-->
+                <form id="singleUploadForm" name="singleUploadForm" >
+                    <input id="singleFileUploadInput" type="file" name="file" class="file-input" required />
+                    <button type="submit" class="primary submit-btn">Submit</button>
+                </form>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>
+<script src="/plugins/jquery/jquery-3.5.1.min.js"></script>
+<script src="/plugins/popper/popper.min.js"></script>
+<script src="/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="/plugins/select2/select2.min.js"></script>
+<script src="/plugins/datepicker/bootstrap-datepicker.min.js"></script>
+<script src="/plugins/custom_js/main.js"></script>
+<script>
+
+    let productId = 0;
+    function addProduct() {
+        let product = {
+            name: $("#name").val(),
+            price: $("#price").val(),
+            quantity: $("#quantity").val(),
+            category_id: $("#category").val()
+        }
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url: "/api/admin/product/add",
+            type: "POST",
+            data: JSON.stringify(product),
+            success: function (response) {
+                if (response.status === 0){
+                    productId = response.data
+                    $("#modal-title").text("product qo'shildi:  " + productId).css("color", "green")
+                    $("#singleUploadForm").css("display","block");
+                    $("#product_details").css("display","none");
+                }
+                else
+                    $("#modal-title").text("product qo'shilishda muamo").css("color", "red")
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+        });
+    }
+
+    $('#singleUploadForm').submit(function(event) {
+        var formElement = this;
+        var formData = new FormData(formElement);
+        $.ajax({
+            type: "POST",
+            enctype: 'multipart/form-data',
+            url: "/api/admin/product/attachment/add/" + productId,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                alert(response.message)
+            },
+            error: function (error) {
+
+            }
+        });
+        event.preventDefault();
+    });
+
+
+</script>
+</body>
+</html>

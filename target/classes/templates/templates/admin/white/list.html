@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>White List</title>
+
+    <link href="/images/shortcut_icon.png" rel="shortcut icon" type="image/png"/>
+    <link href="/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/select2/select2.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/header.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/sidebar.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/custom_styles/content.css" rel="stylesheet" type="text/css">
+
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"
+          rel="stylesheet">
+</head>
+
+<body>
+<div class="wrapper toggled">
+
+    <div th:replace="fragments/admin/sidebar :: sidebar"></div>
+    <div th:replace="fragments/admin/header :: header(${title})"></div>
+
+    <main class="content mb-5">
+        <div class="custom-form">
+            <form action="" id="form_filter" method="post">
+                <div class="row" style="padding-right: 15px;">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="form-group">
+                            <label>Аккаунт</label>
+                            <input class="form-control" name="account" placeholder="Account" th:value="${account}"
+                                   type="text">
+                        </div>
+                    </div>
+
+                    <input id="input_page" name="page" th:value="${page}" type="hidden">
+
+                    <div class="clearfix"></div>
+
+                    <hr class="form-control">
+
+                    <div class="col-12 d-flex flex-wrap">
+                        <button class="btn-reset" onclick="clearForm()" type="button">Cбросить</button>
+                        <button class="btn-ready mr-auto" type="submit">Готово</button>
+                        <a class="btn-add pull-right"
+                           th:href="@{add}">Добавить</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="data-list">
+            <table class="table mb-0">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Аккаунт</th>
+                    <th class="action-column">
+                        <span class="fa fa-ellipsis-h d-flex justify-content-center"
+                              style="font-size: 1.5em;"></span>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="rule , index :${rule_list}">
+                    <td><span th:text="${rule.id}">1</span></td>
+                    <td><span th:text="${rule.account}">UZPAYNET</span></td>
+                    <td>
+                        <div class="btn-group action-menu">
+                            <a data-toggle="dropdown" href="javascript:void(0)">
+                                <i class="fa fa-ellipsis-v d-flex justify-content-center"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form action="edit" method="post">
+                                        <button class="btn-edit" data-target="#modal-info" data-toggle="modal"
+                                                name="rule_id"
+                                                style="margin: 0 .4rem;" th:value="${rule.id}" type="submit">Изменить
+                                        </button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <button class="btn-reset" data-target="#modal-delete" data-toggle="modal"
+                                            style="margin: 0 .4rem; margin-top: 1rem;"
+                                            th:onclick="'showDeletingAlert(' + ${rule.id} + ');'">Удалит
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="custom-pagination">
+            <div class="mr-auto mb-3">
+                <span class="ml-3 pagination-info"
+                      th:text="'Записи с ' + ${from_index} + ' до ' + ${to_index} + ' из ' + ${total_count} + ' записей'">
+                    >
+                    Записи с 1 до 20 из 25 записей
+                </span>
+            </div>
+            <ul class="pagination">
+                <li class="paginate_button" th:each="p , index :${left_pages}">
+                    <a href="javascript:void(0)"
+                       th:text="${p}">2</a>
+                </li>
+                <li class="paginate_button active">
+                    <a href="javascript:void(0)"
+                       th:text="${page}">
+                        3
+                    </a>
+                </li>
+                <li class="paginate_button" th:each="p , index :${right_pages}">
+                    <a href="javascript:void(0)"
+                       th:text="${p}">2</a>
+                </li>
+            </ul>
+        </div>
+
+        <div aria-hidden="true" class="modal fade info" id="modal-delete"
+             role="dialog"
+             tabindex="-1">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title text-center">Вы действительно хотите удалить?</h4>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-ready mb-0 pull-left" type="button">OK</button>
+                        <button class="btn-reset mb-0 mr-0" data-dismiss="modal" type="button">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="/plugins/jquery/jquery-3.5.1.min.js"></script>
+<script src="/plugins/popper/popper.min.js"></script>
+<script src="/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="/plugins/select2/select2.min.js"></script>
+<script src="/plugins/custom_js/main.js"></script>
+<script>
+    var deletingRuleId = 0
+    function showDeletingAlert(id) {
+        deletingRuleId = id
+        console.log(deletingRuleId);
+    }
+
+    $("#modal-delete .btn-ready").click(function () {
+        $("#modal-delete").modal('hide');
+        deleteRule(deletingRuleId)
+    });
+
+    function deleteRule(ruleId) {
+        var postData = {
+            "rule_id": ruleId
+        }
+        $.ajax({
+            url: "/admin/rule/delete",
+            type: "POST",
+            data: postData,
+            success: function (response) {
+
+                if (response === true) {
+                    location.reload();
+                }
+            },
+            error: function (request, status, error) {
+
+            }
+        });
+    }
+</script>
+</body>
+</html>
