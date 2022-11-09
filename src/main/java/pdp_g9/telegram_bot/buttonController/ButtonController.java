@@ -38,7 +38,7 @@ public class ButtonController {
         inlineKeyboardButtons.add(inlineKeyboardButton);
 
         inlineKeyboardButton = new InlineKeyboardButton();
-        inlineKeyboardButton.setText("Ta'om qo'shish");
+        inlineKeyboardButton.setText("Maxsulot qo'shish");
         inlineKeyboardButton.setCallbackData("ADDMEAL"+ "-"+id);
         inlineKeyboardButtons.add(inlineKeyboardButton);
         list.add(inlineKeyboardButtons);
@@ -57,11 +57,11 @@ public class ButtonController {
         keyboardRow.add(new KeyboardButton("User"));
         KeyboardRow keyboardRow1 = new KeyboardRow();
         keyboardRow1.add(new KeyboardButton(("Reklama yuborish")));
-        keyboardRow1.add(new KeyboardButton(("Bugungi namoz vaqti")));
+//        keyboardRow1.add(new KeyboardButton(("Bugungi namoz vaqti")));
 
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton("User  lar excel faylini olish"));
-        keyboardRow2.add(new KeyboardButton("Ob-havo ma'lumotlari"));
+//        keyboardRow2.add(new KeyboardButton("Ob-havo ma'lumotlari"));
 
 //        KeyboardRow keyboardRow3 = new KeyboardRow();
 //        keyboardRow3.add(new KeyboardButton("User  lar ni exceldan olish"));
@@ -92,8 +92,41 @@ public class ButtonController {
         keyboardRows.add(keyboardRow1);
 
         KeyboardRow keyboardRow2 = new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton("Exit ↩"));
+        keyboardRow1.add(new KeyboardButton("Back ↩"));
         keyboardRows.add(keyboardRow2);
+
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup languages(){
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows =new ArrayList<>();
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+
+        KeyboardRow keyboardRow = new KeyboardRow();
+        keyboardRow.add(new KeyboardButton("O'zbek tili \uD83C\uDDF8\uD83C\uDDF1"));
+        keyboardRow.add(new KeyboardButton("Rus tili \uD83C\uDDF7\uD83C\uDDFA"));
+        keyboardRows.add(keyboardRow);
+
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup location(){
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows =new ArrayList<>();
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(false);
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+
+        KeyboardRow keyboardRow = new KeyboardRow();
+        KeyboardButton keyboardButton=new KeyboardButton();
+        keyboardButton.setText("Location");
+        keyboardButton.setRequestLocation(true);
+        keyboardRow.add(keyboardButton);
+
+        keyboardRows.add(keyboardRow);
 
         return replyKeyboardMarkup;
     }

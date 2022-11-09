@@ -21,4 +21,5 @@ public class UserDataBase extends BaseDataBase {
     private String nickName;
     private int adminState;
     private int userRole;
+    private int language;
 }

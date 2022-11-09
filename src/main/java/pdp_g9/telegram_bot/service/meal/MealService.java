@@ -38,7 +38,7 @@ public class MealService {
 
     // This method for user (list of meals in InlineKeyboardMarkup)
 
-    public InlineKeyboardMarkup getMealDataBase(Integer categoryId, int num,int userRole) {
+    public InlineKeyboardMarkup getMealDataBase(Integer categoryId, int num,int userRole,Integer lang) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
         inlineKeyboardMarkup.setKeyboard(list);
@@ -69,7 +69,7 @@ public class MealService {
                     inlineKeyboardButtons.add(inlineKeyboardButton);
 
                     inlineKeyboardButton = new InlineKeyboardButton();
-                    inlineKeyboardButton.setText("Ta'om qo'shish");
+                    inlineKeyboardButton.setText("Maxsulot qo'shish");
                     inlineKeyboardButton.setCallbackData("ADDMEAL" + "-" + categoryId);
                     inlineKeyboardButtons.add(inlineKeyboardButton);
                     list.add(inlineKeyboardButtons);
@@ -100,8 +100,12 @@ public class MealService {
 int num1=0;
         InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
         if (!inlineKeyboardMarkup.getKeyboard().isEmpty()) {
+            if (lang==1){
+                inlineKeyboardButton.setText("kategoriyaga qaytish");
+            }else {
+                inlineKeyboardButton.setText("Вернуться к категории");
+            }
 
-            inlineKeyboardButton.setText("Kategoriyaga qaytish");
             inlineKeyboardButton.setCallbackData("BACKTOCATEGORYFROMMEALLIST"+"-"+categoryId);
             inlineKeyboardButtons.add(inlineKeyboardButton);
             list.add(inlineKeyboardButtons);
@@ -190,7 +194,7 @@ int num1=0;
         return mealDataBase;
     }
 
-    public InlineKeyboardMarkup workWithMeal(int id, int status) {
+    public InlineKeyboardMarkup workWithMeal(int id, int status,int lang) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
         inlineKeyboardMarkup.setKeyboard(list);
@@ -198,18 +202,31 @@ int num1=0;
         List<InlineKeyboardButton> inlineKeyboardButtons = new ArrayList<>();
 
         InlineKeyboardButton inlineKeyboardButton =new InlineKeyboardButton();
-        inlineKeyboardButton.setText("↩ exit");
+        if (lang==1){
+            inlineKeyboardButton.setText("Berkitish❌");
+        }else {
+            inlineKeyboardButton.setText("Закрытие❌");
+        }
         inlineKeyboardButton.setCallbackData("BACKFROMMEALTOCATEGORY"+"-"+id);
+        inlineKeyboardButtons.add(inlineKeyboardButton);
+
+         inlineKeyboardButton =new InlineKeyboardButton();
+        if (lang==1){
+            inlineKeyboardButton.setText("↩ ortga");
+        }else {
+            inlineKeyboardButton.setText("↩ Назад");
+        }
+        inlineKeyboardButton.setCallbackData("Back"+"-"+id);
         inlineKeyboardButtons.add(inlineKeyboardButton);
 
         if (status==1) {
             inlineKeyboardButton = new InlineKeyboardButton();
-            inlineKeyboardButton.setText("Ta'omni taxrirlash");
+            inlineKeyboardButton.setText("M_Taxrirlash");
             inlineKeyboardButton.setCallbackData("EDITMEAL" + "-" + id);
             inlineKeyboardButtons.add(inlineKeyboardButton);
 
             inlineKeyboardButton = new InlineKeyboardButton();
-            inlineKeyboardButton.setText("Ta'omni o'chirish");
+            inlineKeyboardButton.setText("M_o'chirish");
             inlineKeyboardButton.setCallbackData("MEALDELETE" + "-" + id);
             inlineKeyboardButtons.add(inlineKeyboardButton);
         }
@@ -247,7 +264,7 @@ int num1=0;
            categoryId= byId.get().getCategoryDataBase().getId();
         }
 
-        return getMealDataBase(categoryId,0,userRole);
+        return getMealDataBase(categoryId,0,userRole,1);
     }
 
     public InlineKeyboardMarkup searchByName(String text, Long chatId){

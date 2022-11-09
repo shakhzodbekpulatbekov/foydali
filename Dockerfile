@@ -1,4 +1,4 @@
 FROM openjdk:8-jdk-alpine
 EXPOSE 7744
-ADD target/foydali.jar foydali.jar
-ENTRYPOINT ["java","-jar","foydali.jar"]
+ADD target/lorettouz.jar lorettouz.jar
+ENTRYPOINT ["java","-jar","lorettouz.jar"]

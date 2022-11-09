@@ -74,7 +74,7 @@ public class CategoryService {
         if (categoryDataBaseList1.size() != 0) {
             if (categoryDataBaseList1.get(0).getParentId() != 0) {
                 inlineKeyboardButton = new InlineKeyboardButton();
-                inlineKeyboardButton.setText("↩ exit");
+                inlineKeyboardButton.setText("↩ Назад");
                 inlineKeyboardButton.setCallbackData("BACKTOPARENTCATEGORY" + "-" + parentId);
                 inlineKeyboardButtons.add(inlineKeyboardButton);
                 list.add(inlineKeyboardButtons);
@@ -216,10 +216,12 @@ public class CategoryService {
                 inlineKeyboardButton.setCallbackData("LISTTOUSER" + "-" + categoryDataBaseList1.get(i).getId() + "-" + (helper + num));
                 inlineKeyboardButtons.add(inlineKeyboardButton);
                 helper++;
-                if (helper % 2 == 0) {
-                    list.add(inlineKeyboardButtons);
-                    inlineKeyboardButtons = new ArrayList<>();
-                }
+                list.add(inlineKeyboardButtons);
+                inlineKeyboardButtons=new ArrayList<>();
+//                if (helper % 2 == 0) {
+//                    list.add(inlineKeyboardButtons);
+//                    inlineKeyboardButtons = new ArrayList<>();
+//                }
                 if (helper == 10) {
                     break;
                 }
@@ -234,7 +236,7 @@ public class CategoryService {
         int num1 = 0;
         if (!inlineKeyboardMarkup.getKeyboard().isEmpty()) {
             if (parentId != 0) {
-                inlineKeyboardButton.setText("↩ exit");
+                inlineKeyboardButton.setText("↩ Назад");
                 inlineKeyboardButton.setCallbackData("BACKTOPARENTCATEGORY" + "-" + parentId);
                 inlineKeyboardButtons.add(inlineKeyboardButton);
                 list.add(inlineKeyboardButtons);
@@ -303,13 +305,37 @@ public class CategoryService {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         KeyboardRow keyboardRow = new KeyboardRow();
-        keyboardRow.add(new KeyboardButton("Kategoriya ro'yxati"));
-        keyboardRow.add(new KeyboardButton("Bugungi namoz vaqti"));
+        keyboardRow.add(new KeyboardButton("Продукция \uD83D\uDCE6"));
+        keyboardRow.add(new KeyboardButton("Контакты \uD83D\uDCF1"));
         KeyboardRow keyboardRow1=new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton("Ta'omni nomi orqali qidirish"));
-        keyboardRow1.add(new KeyboardButton("Ob-havo ma'lumoti"));
+        keyboardRow1.add(new KeyboardButton("Наши сервисные центры \uD83D\uDEE0"));
+        keyboardRow1.add(new KeyboardButton("О нас \uD83D\uDD35"));
         KeyboardRow keyboardRow2=new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton("Exit ↩"));
+//        keyboardRow1.add(new KeyboardButton("Exit ↩"));
+        keyboardRow2.add(new KeyboardButton("Hаши магазины \uD83C\uDFEA"));
+        keyboardRow2.add(new KeyboardButton("Oнлайн каталог \uD83D\uDCD5"));
+        keyboardRows.add(keyboardRow);
+        keyboardRows.add(keyboardRow1);
+        keyboardRows.add(keyboardRow2);
+        return replyKeyboardMarkup;
+
+    }
+
+    public ReplyKeyboardMarkup mainMenuToUserUZ() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        KeyboardRow keyboardRow = new KeyboardRow();
+        keyboardRow.add(new KeyboardButton("Maxsulotlar \uD83D\uDCE6"));
+        keyboardRow.add(new KeyboardButton("Aloqa \uD83D\uDCF1"));
+        KeyboardRow keyboardRow1=new KeyboardRow();
+        keyboardRow1.add(new KeyboardButton("Servis markazi \uD83D\uDEE0"));
+        keyboardRow1.add(new KeyboardButton("Biz haqimizda \uD83D\uDD35"));
+        KeyboardRow keyboardRow2=new KeyboardRow();
+//        keyboardRow1.add(new KeyboardButton("Exit ↩"));
+        keyboardRow2.add(new KeyboardButton("Bizning do'konlar \uD83C\uDFEA"));
+        keyboardRow2.add(new KeyboardButton("Onlayn katalog \uD83D\uDCD5"));
         keyboardRows.add(keyboardRow);
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
@@ -373,7 +399,7 @@ public class CategoryService {
 
             InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
             if (parentId != 0) {
-                inlineKeyboardButton.setText("↩ exit");
+                inlineKeyboardButton.setText("↩ Назад");
                 inlineKeyboardButton.setCallbackData("BACKTOPARENTCATEGORY" + "-" + parentId);
                 inlineKeyboardButtons.add(inlineKeyboardButton);
                 list.add(inlineKeyboardButtons);

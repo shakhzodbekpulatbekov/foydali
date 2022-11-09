@@ -240,7 +240,7 @@ public Integer getUserRole(Long chatId){
         List<InlineKeyboardButton> inlineKeyboardButtons = new ArrayList<>();
 
         InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-        inlineKeyboardButton.setText("↩️exit");
+        inlineKeyboardButton.setText("↩ Назад");
         inlineKeyboardButton.setCallbackData("EXITTOADMINLIST");
         inlineKeyboardButtons.add(inlineKeyboardButton);
 
@@ -295,6 +295,12 @@ public Integer getUserRole(Long chatId){
 
     public void deleteUser(){
         userRepository.deleteAll();
+    }
+
+    public UserDataBase findUser(Long chatId) {
+        Optional<UserDataBase> byChadId = userRepository.findByChadId(chatId);
+
+        return byChadId.orElse(null);
     }
 
 }
