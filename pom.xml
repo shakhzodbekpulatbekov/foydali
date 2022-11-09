@@ -131,6 +131,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>foydali</finalName>
+        <finalName>lorettouz</finalName>
     </build>
 </project>
