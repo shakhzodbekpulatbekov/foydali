@@ -18,12 +18,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pdp_g9.telegram_bot.excel.ReadFromExcel;
-import pdp_g9.telegram_bot.weather.ConnectTWeather;
 import pdp_g9.telegram_bot.buttonController.ButtonController;
 import pdp_g9.telegram_bot.excel.WriteToExcel;
-import pdp_g9.telegram_bot.namazTime.ConnectToUrl;
-import pdp_g9.telegram_bot.namazTime.NamazToString;
-import pdp_g9.telegram_bot.namazTime.Root;
 import pdp_g9.telegram_bot.service.meal.MealService;
 import pdp_g9.telegram_bot.entity.meal.MealDataBase;
 import pdp_g9.telegram_bot.entity.user.UserDataBase;
@@ -32,7 +28,6 @@ import pdp_g9.telegram_bot.repository.meal.MealRepository;
 import pdp_g9.telegram_bot.repository.user.UserRepository;
 import pdp_g9.telegram_bot.service.category.CategoryService;
 import pdp_g9.telegram_bot.service.user.UserService;
-import pdp_g9.telegram_bot.weather.WeatherToString;
 
 import java.io.File;
 import java.io.InputStream;
@@ -218,7 +213,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                         executesEdit(categoryService.categoryList(0, categoryParentId), messageId, chatId);
 
                     else
-                        executesEdit(categoryService.listToUser(categoryParentId, 0), messageId, chatId);
+                        executesEdit(categoryService.listToUser(categoryParentId, 0,chatId), messageId, chatId);
                     break;
 
                 case "LIST":
@@ -360,11 +355,11 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                     break;
 
                 case "USERNEXT":
-                    executesEdit(categoryService.listToUser(id, value), messageId, chatId);
+                    executesEdit(categoryService.listToUser(id, value,chatId), messageId, chatId);
                     break;
 
                 case "USERPREVIOUS":
-                    executesEdit(categoryService.listToUser(id, value), messageId, chatId);
+                    executesEdit(categoryService.listToUser(id, value,chatId), messageId, chatId);
                     break;
 
                 case "NUMBEROFUSERS":
@@ -598,15 +593,15 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 executes2(sendMessage);
                                 break;
 
-                            case "Bugungi namoz vaqti":
-                                ConnectToUrl connectToUrl = new ConnectToUrl();
-                                Root root = connectToUrl.namazTime();
-                                NamazToString namaz = new NamazToString();
-                                String str = namaz.namazTime(root);
-                                sendMessage.setText(str);
-                                sendMessage.setChatId(String.valueOf(chatId));
-                                executes2(sendMessage);
-                                break;
+//                            case "Bugungi namoz vaqti":
+//                                ConnectToUrl connectToUrl = new ConnectToUrl();
+//                                Root root = connectToUrl.namazTime();
+//                                NamazToString namaz = new NamazToString();
+//                                String str = namaz.namazTime(root);
+//                                sendMessage.setText(str);
+//                                sendMessage.setChatId(String.valueOf(chatId));
+//                                executes2(sendMessage);
+//                                break;
 
 
                             case "User  lar excel faylini olish":
@@ -739,11 +734,11 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 executes(languages,null,chatId,"Tilni tanlang!\nВыберите язык!");
                                 break;
                             case "Продукция \uD83D\uDCE6":
-                                InlineKeyboardMarkup inlineKeyboardMarkup = categoryService.listToUser(0, 0);
+                                InlineKeyboardMarkup inlineKeyboardMarkup = categoryService.listToUser(0, 0,chatId);
                                 executes(null, inlineKeyboardMarkup, chatId, responseText);
                                 break;
                             case "Maxsulotlar \uD83D\uDCE6":
-                                inlineKeyboardMarkup = categoryService.listToUser(0, 0);
+                                inlineKeyboardMarkup = categoryService.listToUser(0, 0,chatId);
                                 executes(null, inlineKeyboardMarkup, chatId, "Kerakli bo'limni tanlang!");
                                 break;
 

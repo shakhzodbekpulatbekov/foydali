@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import pdp_g9.telegram_bot.entity.category.CategoryDataBase;
+import pdp_g9.telegram_bot.entity.user.UserDataBase;
 import pdp_g9.telegram_bot.repository.category.CategoryRepository;
 import pdp_g9.telegram_bot.service.user.UserService;
 
@@ -191,7 +192,7 @@ public class CategoryService {
 
 
     //This method for user (list of category in InlineKeyboardMarkup)
-    public InlineKeyboardMarkup listToUser(int parentId, int num) {
+    public InlineKeyboardMarkup listToUser(int parentId, int num,Long chatId) {
         List<CategoryDataBase> categoryDataBaseList = getList();
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
@@ -235,6 +236,8 @@ public class CategoryService {
 
         int num1 = 0;
         if (!inlineKeyboardMarkup.getKeyboard().isEmpty()) {
+            UserDataBase user = userService.findUser(chatId);
+            int lang=user.getLanguage();
             if (parentId != 0) {
                 inlineKeyboardButton.setText("↩ Назад");
                 inlineKeyboardButton.setCallbackData("BACKTOPARENTCATEGORY" + "-" + parentId);
@@ -244,7 +247,12 @@ public class CategoryService {
             }
             if (num == 0 && ((num + helper) < categoryDataBaseList1.size())) {
                 inlineKeyboardButton = new InlineKeyboardButton();
-                inlineKeyboardButton.setText("⏩ next");
+                if (lang==1){
+                    inlineKeyboardButton.setText("⏩ keyingi");
+                }else {
+                    inlineKeyboardButton.setText("⏩ следующий");
+                }
+
                 inlineKeyboardButton.setCallbackData("USERNEXT" + "-" + parentId + "-" + (num + helper));
                 inlineKeyboardButtons.add(inlineKeyboardButton);
                 list.add(inlineKeyboardButtons);
@@ -255,12 +263,21 @@ public class CategoryService {
                     num1 = num - ((num % 10) + 10);
                 }
                 inlineKeyboardButton = new InlineKeyboardButton();
-                inlineKeyboardButton.setText("⏪ previous");
+                if (lang==1){
+                    inlineKeyboardButton.setText("⏪ предыдущий");
+                }else {
+                    inlineKeyboardButton.setText("⏪ avvalgi");
+                }
+
                 inlineKeyboardButton.setCallbackData("USERPREVIOUS" + "-" + parentId + "-" + num1);
                 inlineKeyboardButtons.add(inlineKeyboardButton);
 
                 inlineKeyboardButton = new InlineKeyboardButton();
-                inlineKeyboardButton.setText("⏩ next");
+                if (lang==1){
+                    inlineKeyboardButton.setText("⏩ keyingi");
+                }else {
+                    inlineKeyboardButton.setText("⏩ следующий");
+                }
                 inlineKeyboardButton.setCallbackData("USERNEXT" + "-" + parentId + "-" + (num + helper));
                 inlineKeyboardButtons.add(inlineKeyboardButton);
                 list.add(inlineKeyboardButtons);
@@ -271,7 +288,11 @@ public class CategoryService {
                     num1 = (num % 10);
                 }
                 inlineKeyboardButton = new InlineKeyboardButton();
-                inlineKeyboardButton.setText("⏪ previous");
+                if (lang==1){
+                    inlineKeyboardButton.setText("⏪ предыдущий");
+                }else {
+                    inlineKeyboardButton.setText("⏪ avvalgi");
+                }
                 inlineKeyboardButton.setCallbackData("USERPREVIOUS" + "-" + parentId + "-" + num1);
                 inlineKeyboardButtons.add(inlineKeyboardButton);
                 list.add(inlineKeyboardButtons);
