@@ -23,7 +23,7 @@ public class WriteToExcel {
         List<UserDataBase> users = userRepository.findAll();
 
         {
-            try(FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/UsersList.xls")) {
+            try(FileOutputStream fileOutputStream = new FileOutputStream("root/lorettouz/files/UsersList.xls")) {
                 HSSFWorkbook xssfWorkbook = new HSSFWorkbook();
 
                 CellStyle style=xssfWorkbook.createCellStyle();

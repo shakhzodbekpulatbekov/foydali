@@ -611,7 +611,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
 
                             case "User  lar excel faylini olish":
                                 WriteToExcel writeToExcel = new WriteToExcel(userRepository);
-                                String path= "src/main/resources/UsersList.xls";
+                                String path= "root/lorettouz/files/UsersList.xls";
                                 writeToExcel.writeToFile();
                                 sendDocument(chatId, new File(path), "Userlar ro'yxati");
                                 break;
