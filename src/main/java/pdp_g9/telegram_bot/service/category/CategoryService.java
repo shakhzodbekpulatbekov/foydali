@@ -264,9 +264,9 @@ public class CategoryService {
                 }
                 inlineKeyboardButton = new InlineKeyboardButton();
                 if (lang==1){
-                    inlineKeyboardButton.setText("⏪ предыдущий");
-                }else {
                     inlineKeyboardButton.setText("⏪ avvalgi");
+                }else {
+                    inlineKeyboardButton.setText("⏪ предыдущий");
                 }
 
                 inlineKeyboardButton.setCallbackData("USERPREVIOUS" + "-" + parentId + "-" + num1);
