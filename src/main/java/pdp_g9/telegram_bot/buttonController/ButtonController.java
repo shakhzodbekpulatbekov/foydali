@@ -62,6 +62,7 @@ public class ButtonController {
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton("User  lar excel faylini olish"));
 //        keyboardRow2.add(new KeyboardButton("Ob-havo ma'lumotlari"));
+        keyboardRow2.add(new KeyboardButton("Price yuborish!"));
 
 //        KeyboardRow keyboardRow3 = new KeyboardRow();
 //        keyboardRow3.add(new KeyboardButton("User  lar ni exceldan olish"));

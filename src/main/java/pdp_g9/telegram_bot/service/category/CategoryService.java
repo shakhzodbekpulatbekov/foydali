@@ -357,6 +357,7 @@ public class CategoryService {
 //        keyboardRow1.add(new KeyboardButton("Exit ↩"));
         keyboardRow2.add(new KeyboardButton("Bizning do'konlar \uD83C\uDFEA"));
         keyboardRow2.add(new KeyboardButton("Onlayn katalog \uD83D\uDCD5"));
+        keyboardRow2.add(new KeyboardButton("Price olish \uD83D\uDCD5"));
         keyboardRows.add(keyboardRow);
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);

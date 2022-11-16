@@ -17,9 +17,11 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import pdp_g9.telegram_bot.entity.price.PriceEntity;
 import pdp_g9.telegram_bot.excel.ReadFromExcel;
 import pdp_g9.telegram_bot.buttonController.ButtonController;
 import pdp_g9.telegram_bot.excel.WriteToExcel;
+import pdp_g9.telegram_bot.repository.price.PriceRepository;
 import pdp_g9.telegram_bot.service.meal.MealService;
 import pdp_g9.telegram_bot.entity.meal.MealDataBase;
 import pdp_g9.telegram_bot.entity.user.UserDataBase;
@@ -32,7 +34,6 @@ import pdp_g9.telegram_bot.service.user.UserService;
 import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -49,10 +50,11 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
     final CategoryService categoryService;
     final UserRepository userRepository;
     final ButtonController buttonController;
+    final PriceRepository priceRepository;
 
 
     @Autowired
-    public Main(UserService userService, CategoryRepository categoryRepository, MealRepository mealRepository, MealService keyboards, MealDataBase mealDataBase, CategoryService categoryService, UserRepository userRepository, ButtonController buttonController) {
+    public Main(UserService userService, CategoryRepository categoryRepository, MealRepository mealRepository, MealService keyboards, MealDataBase mealDataBase, CategoryService categoryService, UserRepository userRepository, ButtonController buttonController, PriceRepository price, PriceRepository priceRepository) {
         this.userService = userService;
         this.categoryRepository = categoryRepository;
         this.mealRepository = mealRepository;
@@ -61,6 +63,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
         this.categoryService = categoryService;
         this.userRepository = userRepository;
         this.buttonController = buttonController;
+        this.priceRepository = priceRepository;
     }
 
     @Override
@@ -411,6 +414,39 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
             long chatId = update.getMessage().getChatId();
             Integer status = userService.getStatus(chatId);
 
+            if (status==11){
+                String doc_id = update.getMessage().getDocument().getFileId();
+                String doc_name = update.getMessage().getDocument().getFileName();
+                String doc_mine = update.getMessage().getDocument().getMimeType();
+                int doc_size = update.getMessage().getDocument().getFileSize();
+                String getID = String.valueOf(update.getMessage().getFrom().getId());
+
+                Document document = new Document();
+                document.setMimeType(doc_mine);
+                document.setFileName(doc_name);
+                document.setFileSize(doc_size);
+                document.setFileId(doc_id);
+
+                File file1 = null;
+                GetFile getFile = new GetFile();
+                getFile.setFileId(document.getFileId());
+                File file2 = null;
+                try {
+                    org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
+//                this.path += "/data/userDoc/" + getID + "_" + doc_name;
+//                file1 = downloadFile(file, new File("./data/userDoc/" + getID + "_" + doc_name));
+                    file2 = downloadFile(file);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+                byte[] fileContent = FileUtil.readAsByteArray(file2);
+                PriceEntity priceEntity = new PriceEntity();
+                priceEntity.setPhotoByte(fileContent);
+                priceRepository.save(priceEntity);
+                UserDataBase user = userService.findUser(chatId);
+                user.setAdminState(4);
+            }
+
             String doc_id = update.getMessage().getDocument().getFileId();
             String doc_name = update.getMessage().getDocument().getFileName();
             String doc_mine = update.getMessage().getDocument().getMimeType();
@@ -591,6 +627,15 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 sendMessage.setText("Reklama matnini kiriting");
                                 sendMessage.setChatId(String.valueOf(chatId));
                                 executes2(sendMessage);
+                                break;
+
+                            case "Price yuborish!":
+                                sendMessage.setText("Priceni yuboring!");
+                                sendMessage.setChatId(String.valueOf(chatId));
+                                execute(sendMessage);
+                                UserDataBase user = userService.findUser(chatId);
+                                user.setAdminState(11);
+                                userRepository.save(user);
                                 break;
 
 //                            case "Bugungi namoz vaqti":
@@ -862,6 +907,16 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                             case "Exit ↩":
                                 ReplyKeyboardMarkup replyKeyboardMarkup2 = categoryService.mainMenuToUser();
                                 executes(replyKeyboardMarkup2,null,chatId,"Tilni tanlang!\nВыберите язык!");
+                                break;
+
+                            case "Price olish \uD83D\uDCD5":
+                                List<PriceEntity> all = priceRepository.findAll();
+                                InputStream inputStream = ByteSource.wrap(all.get(0).getPhotoByte()).openStream();
+                                SendPhoto messagePhoto = new SendPhoto();
+                                InputFile inputFile = new InputFile(inputStream, "Price");
+                                messagePhoto.setPhoto(inputFile);
+                                messagePhoto.setChatId(String.valueOf(chatId));
+                                execute(messagePhoto);
                                 break;
                         }
                     }
