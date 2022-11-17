@@ -63,15 +63,15 @@ public class ButtonController {
         keyboardRow2.add(new KeyboardButton("User  lar excel faylini olish"));
 //        keyboardRow2.add(new KeyboardButton("Ob-havo ma'lumotlari"));
         keyboardRow2.add(new KeyboardButton("Price yuborish!"));
+        KeyboardRow keyboardRow3 = new KeyboardRow();
+        keyboardRow3.add(new KeyboardButton("Price olish \uD83D\uDCD5"));
 
-//        KeyboardRow keyboardRow3 = new KeyboardRow();
-//        keyboardRow3.add(new KeyboardButton("User  lar ni exceldan olish"));
 
 
         keyboardRows.add(keyboardRow);
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
-//        keyboardRows.add(keyboardRow3);
+        keyboardRows.add(keyboardRow3);
         replyKeyboardMarkup.setKeyboard(keyboardRows);
 
         return replyKeyboardMarkup;

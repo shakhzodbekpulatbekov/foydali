@@ -29,6 +29,7 @@ import pdp_g9.telegram_bot.repository.category.CategoryRepository;
 import pdp_g9.telegram_bot.repository.meal.MealRepository;
 import pdp_g9.telegram_bot.repository.user.UserRepository;
 import pdp_g9.telegram_bot.service.category.CategoryService;
+import pdp_g9.telegram_bot.service.priceService.PriceService;
 import pdp_g9.telegram_bot.service.user.UserService;
 
 import java.io.File;
@@ -51,10 +52,11 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
     final UserRepository userRepository;
     final ButtonController buttonController;
     final PriceRepository priceRepository;
+    final PriceService priceService;
 
 
     @Autowired
-    public Main(UserService userService, CategoryRepository categoryRepository, MealRepository mealRepository, MealService keyboards, MealDataBase mealDataBase, CategoryService categoryService, UserRepository userRepository, ButtonController buttonController, PriceRepository price, PriceRepository priceRepository) {
+    public Main(UserService userService, CategoryRepository categoryRepository, MealRepository mealRepository, MealService keyboards, MealDataBase mealDataBase, CategoryService categoryService, UserRepository userRepository, ButtonController buttonController, PriceRepository price, PriceRepository priceRepository, PriceService priceService) {
         this.userService = userService;
         this.categoryRepository = categoryRepository;
         this.mealRepository = mealRepository;
@@ -64,16 +66,17 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
         this.userRepository = userRepository;
         this.buttonController = buttonController;
         this.priceRepository = priceRepository;
+        this.priceService = priceService;
     }
 
     @Override
     public String getBotUsername() {
-        return "t.me/LorettoUZ_bot";
+        return "@nimadurbot_bot";
     }
 
     @Override
     public String getBotToken() {
-        return "5705544343:AAH7UQFcLHLlHNGB51STAq6kk0bXu0c-qDQ";
+        return "5490853003:AAGNaZACfN8Vd0xJbA5IjsGejcFnjrPqHIk";
     }
 
     String categoryName = "";
@@ -93,7 +96,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
     public void onUpdateReceived(Update update) {
         this.responseText = "Выберите нужный раздел!";
         SendMessage sendMessage = new  SendMessage();
-
+        priceService.WriteToFile();
         if (update.hasCallbackQuery()) {
             if (update.getCallbackQuery().getMessage().getChatId()!=915145143){
                 String text = update.getCallbackQuery().getMessage().getText();
@@ -172,7 +175,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                     if (language==2){
                         messagePhoto.setCaption(meal.getName() + "\n\n" + meal.getVideoUrl());
                     }
-                     //+ "\n\n videoni ko'rish uchun  \uD83D\uDC47 \n"
+                    //+ "\n\n videoni ko'rish uchun  \uD83D\uDC47 \n"
                     messagePhoto.setChatId(String.valueOf(chatId));
                     execute(messagePhoto);
                     InlineKeyboardMarkup inlineKeyboardMarkup5 = mealService.workWithMeal(id, userRole,language);
@@ -414,6 +417,8 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
             long chatId = update.getMessage().getChatId();
             Integer status = userService.getStatus(chatId);
 
+
+
             if (status==11){
                 String doc_id = update.getMessage().getDocument().getFileId();
                 String doc_name = update.getMessage().getDocument().getFileName();
@@ -440,94 +445,101 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                     e.printStackTrace();
                 }
                 byte[] fileContent = FileUtil.readAsByteArray(file2);
+                priceRepository.deleteAll();
                 PriceEntity priceEntity = new PriceEntity();
                 priceEntity.setPhotoByte(fileContent);
                 priceRepository.save(priceEntity);
-                UserDataBase user = userService.findUser(chatId);
-                user.setAdminState(4);
-            }
 
-            String doc_id = update.getMessage().getDocument().getFileId();
-            String doc_name = update.getMessage().getDocument().getFileName();
-            String doc_mine = update.getMessage().getDocument().getMimeType();
-            int doc_size = update.getMessage().getDocument().getFileSize();
-            String getID = String.valueOf(update.getMessage().getFrom().getId());
-
-            Document document = new Document();
-            document.setMimeType(doc_mine);
-            document.setFileName(doc_name);
-            document.setFileSize(doc_size);
-            document.setFileId(doc_id);
-
-            File file1 = null;
-            GetFile getFile = new GetFile();
-            getFile.setFileId(document.getFileId());
-            File file2 = null;
-            try {
-                org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
-//                this.path += "/data/userDoc/" + getID + "_" + doc_name;
-//                file1 = downloadFile(file, new File("./data/userDoc/" + getID + "_" + doc_name));
-                file2 = downloadFile(file);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-            byte[] fileContent = FileUtil.readAsByteArray(file2);
-
-            if (status == 6) {
                 sendMessage = new SendMessage();
-                userService.setAdminStatus(4, chatId);
-                boolean b = mealService.editMeal(mealName, description, fileContent, videoUrl, doc_name, mealId);
-                if (b) {
-                    sendMessage.setText("Maxsulot taxrirlandi");
-                } else sendMessage.setText("Maxsulot taxrirlashda muammo");
-
+                sendMessage.setText("OK");
                 sendMessage.setChatId(String.valueOf(chatId));
-                executes2(sendMessage);
+                execute(sendMessage);
 
-            } else {
-                boolean isHas = mealService.addMeal(mealName, description, categoryId, fileContent, videoUrl, doc_name, chatId);
-                 sendMessage = new SendMessage();
-                if (!isHas) {
-                    sendMessage.setText("Maxsulot qo'shildi");
-                } else {
-                    sendMessage.setText("Maxsulot qo'shishda muammo (Maxsulot nomi allaqachon mavjud)");
-                }
-                sendMessage.setChatId(String.valueOf(chatId));
-                executes2(sendMessage);
-            }
-            if (count == 3) {
-                mealName = "";
-                description = "";
-                categoryId = 0;
-                videoUrl = "";
-                count = 0;
-                mealId = 0;
+            }else {
 
-            }
-            if (status==10){
-                String excel_id = update.getMessage().getDocument().getFileId();
-                String excel_name = update.getMessage().getDocument().getFileName();
-                String excel_mine = update.getMessage().getDocument().getMimeType();
-                int excel_size = update.getMessage().getDocument().getFileSize();
-                String excel_getID = String.valueOf(update.getMessage().getFrom().getId());
 
-                Document document1 = new Document();
+                String doc_id = update.getMessage().getDocument().getFileId();
+                String doc_name = update.getMessage().getDocument().getFileName();
+                String doc_mine = update.getMessage().getDocument().getMimeType();
+                int doc_size = update.getMessage().getDocument().getFileSize();
+                String getID = String.valueOf(update.getMessage().getFrom().getId());
+
+                Document document = new Document();
                 document.setMimeType(doc_mine);
                 document.setFileName(doc_name);
                 document.setFileSize(doc_size);
                 document.setFileId(doc_id);
 
-                File file = null;
-                getFile = new GetFile();
+                File file1 = null;
+                GetFile getFile = new GetFile();
                 getFile.setFileId(document.getFileId());
-                File file3 = null;
+                File file2 = null;
                 try {
-                    org.telegram.telegrambots.meta.api.objects.File file4 = execute(getFile);
+                    org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
 //                this.path += "/data/userDoc/" + getID + "_" + doc_name;
 //                file1 = downloadFile(file, new File("./data/userDoc/" + getID + "_" + doc_name));
-                    file3 = downloadFile(file4);
+                    file2 = downloadFile(file);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
+                }
+                byte[] fileContent = FileUtil.readAsByteArray(file2);
+
+                if (status == 6) {
+                    sendMessage = new SendMessage();
+                    userService.setAdminStatus(4, chatId);
+                    boolean b = mealService.editMeal(mealName, description, fileContent, videoUrl, doc_name, mealId);
+                    if (b) {
+                        sendMessage.setText("Maxsulot taxrirlandi");
+                    } else sendMessage.setText("Maxsulot taxrirlashda muammo");
+
+                    sendMessage.setChatId(String.valueOf(chatId));
+                    executes2(sendMessage);
+
+                } else {
+                    boolean isHas = mealService.addMeal(mealName, description, categoryId, fileContent, videoUrl, doc_name, chatId);
+                    sendMessage = new SendMessage();
+                    if (!isHas) {
+                        sendMessage.setText("Maxsulot qo'shildi");
+                    } else {
+                        sendMessage.setText("Maxsulot qo'shishda muammo (Maxsulot nomi allaqachon mavjud)");
+                    }
+                    sendMessage.setChatId(String.valueOf(chatId));
+                    executes2(sendMessage);
+                }
+                if (count == 3) {
+                    mealName = "";
+                    description = "";
+                    categoryId = 0;
+                    videoUrl = "";
+                    count = 0;
+                    mealId = 0;
+
+                }
+                if (status == 10) {
+                    String excel_id = update.getMessage().getDocument().getFileId();
+                    String excel_name = update.getMessage().getDocument().getFileName();
+                    String excel_mine = update.getMessage().getDocument().getMimeType();
+                    int excel_size = update.getMessage().getDocument().getFileSize();
+                    String excel_getID = String.valueOf(update.getMessage().getFrom().getId());
+
+                    Document document1 = new Document();
+                    document.setMimeType(doc_mine);
+                    document.setFileName(doc_name);
+                    document.setFileSize(doc_size);
+                    document.setFileId(doc_id);
+
+                    File file = null;
+                    getFile = new GetFile();
+                    getFile.setFileId(document.getFileId());
+                    File file3 = null;
+                    try {
+                        org.telegram.telegrambots.meta.api.objects.File file4 = execute(getFile);
+//                this.path += "/data/userDoc/" + getID + "_" + doc_name;
+//                file1 = downloadFile(file, new File("./data/userDoc/" + getID + "_" + doc_name));
+                        file3 = downloadFile(file4);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -636,6 +648,16 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 UserDataBase user = userService.findUser(chatId);
                                 user.setAdminState(11);
                                 userRepository.save(user);
+                                break;
+
+                            case "Price olish \uD83D\uDCD5":
+                                List<PriceEntity> all = priceRepository.findAll();
+                                InputStream inputStream = ByteSource.wrap(all.get(0).getPhotoByte()).openStream();
+                                SendPhoto messagePhoto = new SendPhoto();
+                                InputFile inputFile = new InputFile(inputStream, "Price");
+                                messagePhoto.setPhoto(inputFile);
+                                messagePhoto.setChatId(String.valueOf(chatId));
+                                execute(messagePhoto);
                                 break;
 
 //                            case "Bugungi namoz vaqti":
