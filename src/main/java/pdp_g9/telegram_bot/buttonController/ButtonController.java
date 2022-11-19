@@ -56,7 +56,7 @@ public class ButtonController {
         keyboardRow.add(new KeyboardButton("Kategoriya"));
         keyboardRow.add(new KeyboardButton("User"));
         KeyboardRow keyboardRow1 = new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton(("Reklama yuborish")));
+        keyboardRow1.add(new KeyboardButton(("Xabar yuborish")));
 //        keyboardRow1.add(new KeyboardButton(("Bugungi namoz vaqti")));
 
         KeyboardRow keyboardRow2 = new KeyboardRow();
@@ -65,6 +65,7 @@ public class ButtonController {
         keyboardRow2.add(new KeyboardButton("Price yuborish!"));
         KeyboardRow keyboardRow3 = new KeyboardRow();
         keyboardRow3.add(new KeyboardButton("Price olish \uD83D\uDCD5"));
+        keyboardRow3.add(new KeyboardButton("Location \uD83D\uDCCD"));
 
 
 
@@ -99,6 +100,20 @@ public class ButtonController {
         return replyKeyboardMarkup;
     }
 
+    public ReplyKeyboardMarkup addressLocation(){
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows =new ArrayList<>();
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+
+        KeyboardRow keyboardRow = new KeyboardRow();
+        keyboardRow.add(new KeyboardButton("Do'kon"));
+        keyboardRow.add(new KeyboardButton("Biz haqimizda"));
+        keyboardRows.add(keyboardRow);
+
+        return replyKeyboardMarkup;
+    }
+
     public ReplyKeyboardMarkup languages(){
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows =new ArrayList<>();
@@ -125,6 +140,41 @@ public class ButtonController {
         KeyboardButton keyboardButton=new KeyboardButton();
         keyboardButton.setText("Location");
         keyboardButton.setRequestLocation(true);
+        keyboardRow.add(keyboardButton);
+
+        keyboardRows.add(keyboardRow);
+
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup getUserContact(){
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows =new ArrayList<>();
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(false);
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+
+        KeyboardRow keyboardRow = new KeyboardRow();
+        KeyboardButton keyboardButton=new KeyboardButton();
+        keyboardButton.setText("Contact");
+        keyboardButton.setRequestContact(true);
+        keyboardRow.add(keyboardButton);
+
+        keyboardRows.add(keyboardRow);
+
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup MainMenu(){
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows =new ArrayList<>();
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+
+        KeyboardRow keyboardRow = new KeyboardRow();
+        KeyboardButton keyboardButton=new KeyboardButton();
+        keyboardButton.setText("Menu");
         keyboardRow.add(keyboardButton);
 
         keyboardRows.add(keyboardRow);

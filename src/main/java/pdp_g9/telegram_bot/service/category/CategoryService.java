@@ -320,7 +320,7 @@ public class CategoryService {
         return false;
     }
 
-    public ReplyKeyboardMarkup mainMenuToUser() {
+    public ReplyKeyboardMarkup mainMenuToUser(int num) {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setResizeKeyboard(true);
         List<KeyboardRow> keyboardRows = new ArrayList<>();
@@ -335,14 +335,21 @@ public class CategoryService {
 //        keyboardRow1.add(new KeyboardButton("Exit ↩"));
         keyboardRow2.add(new KeyboardButton("Hаши магазины \uD83C\uDFEA"));
         keyboardRow2.add(new KeyboardButton("Oнлайн каталог \uD83D\uDCD5"));
+        KeyboardRow keyboardRow3=new KeyboardRow();
         keyboardRows.add(keyboardRow);
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
+
+        if (num==1){
+            keyboardRow3.add(new KeyboardButton("Price \uD83D\uDCB5"));
+            keyboardRows.add(keyboardRow3);
+        }
+
         return replyKeyboardMarkup;
 
     }
 
-    public ReplyKeyboardMarkup mainMenuToUserUZ() {
+    public ReplyKeyboardMarkup mainMenuToUserUZ(int num) {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setResizeKeyboard(true);
         List<KeyboardRow> keyboardRows = new ArrayList<>();
@@ -357,10 +364,16 @@ public class CategoryService {
 //        keyboardRow1.add(new KeyboardButton("Exit ↩"));
         keyboardRow2.add(new KeyboardButton("Bizning do'konlar \uD83C\uDFEA"));
         keyboardRow2.add(new KeyboardButton("Onlayn katalog \uD83D\uDCD5"));
-        keyboardRow2.add(new KeyboardButton("Price olish \uD83D\uDCD5"));
+        KeyboardRow keyboardRow3=new KeyboardRow();
+
         keyboardRows.add(keyboardRow);
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
+
+        if (num==1){
+            keyboardRow3.add(new KeyboardButton("Price \uD83D\uDCB5"));
+            keyboardRows.add(keyboardRow3);
+        }
         return replyKeyboardMarkup;
 
     }

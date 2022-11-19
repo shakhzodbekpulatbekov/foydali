@@ -17,10 +17,12 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import pdp_g9.telegram_bot.entity.location.LocationEntity;
 import pdp_g9.telegram_bot.entity.price.PriceEntity;
 import pdp_g9.telegram_bot.excel.ReadFromExcel;
 import pdp_g9.telegram_bot.buttonController.ButtonController;
 import pdp_g9.telegram_bot.excel.WriteToExcel;
+import pdp_g9.telegram_bot.repository.location.LocationRepository;
 import pdp_g9.telegram_bot.repository.price.PriceRepository;
 import pdp_g9.telegram_bot.service.meal.MealService;
 import pdp_g9.telegram_bot.entity.meal.MealDataBase;
@@ -37,7 +39,10 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
+
+import static org.springframework.data.relational.core.sql.StatementBuilder.update;
 
 @Component
 public class Main extends TelegramLongPollingBot implements ReadFromExcel {
@@ -53,10 +58,11 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
     final ButtonController buttonController;
     final PriceRepository priceRepository;
     final PriceService priceService;
+    final LocationRepository locationRepository;
 
 
     @Autowired
-    public Main(UserService userService, CategoryRepository categoryRepository, MealRepository mealRepository, MealService keyboards, MealDataBase mealDataBase, CategoryService categoryService, UserRepository userRepository, ButtonController buttonController, PriceRepository price, PriceRepository priceRepository, PriceService priceService) {
+    public Main(UserService userService, CategoryRepository categoryRepository, MealRepository mealRepository, MealService keyboards, MealDataBase mealDataBase, CategoryService categoryService, UserRepository userRepository, ButtonController buttonController, PriceRepository price, PriceRepository priceRepository, PriceService priceService, LocationRepository locationRepository) {
         this.userService = userService;
         this.categoryRepository = categoryRepository;
         this.mealRepository = mealRepository;
@@ -67,6 +73,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
         this.buttonController = buttonController;
         this.priceRepository = priceRepository;
         this.priceService = priceService;
+        this.locationRepository = locationRepository;
     }
 
     @Override
@@ -96,8 +103,31 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
     public void onUpdateReceived(Update update) {
         this.responseText = "Выберите нужный раздел!";
         SendMessage sendMessage = new  SendMessage();
-        priceService.WriteToFile();
         if (update.hasCallbackQuery()) {
+
+            if (update.getCallbackQuery().getData().startsWith("add")){
+
+                String[] parts = update.getCallbackQuery().getData().split("-");
+                String userChatId = parts[1];
+                String nickName = parts[2];
+                String fullName = parts[3];
+
+                UserDataBase user = userService.findUser(Long.valueOf(userChatId));
+                user.setUserRole(3);
+                userRepository.save(user);
+                int language = user.getLanguage();
+                sendMessage=new SendMessage();
+                sendMessage.setChatId(userChatId);
+                if (language==1){
+                    sendMessage.setText("Diller sifatida foydalanishingiz mumkin!");
+                }else {
+                    sendMessage.setText("Вы можете использовать его в качестве дилера");
+                }
+                execute(sendMessage);
+
+
+
+            }
             if (update.getCallbackQuery().getMessage().getChatId()!=915145143){
                 String text = update.getCallbackQuery().getMessage().getText();
                 String firstName = update.getCallbackQuery().getMessage().getChat().getFirstName();
@@ -413,6 +443,22 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                 default:
                     throw new IllegalStateException("Unexpected value: " + str);
             }
+        }else if(update.getMessage().hasContact()){
+            long chatId=update.getMessage().getChat().getId();
+            UserDataBase user = userService.findUser(chatId);
+            String phoneNumber = update.getMessage().getContact().getPhoneNumber();
+            int language = user.getLanguage();
+            user.setPhoneNumber(phoneNumber);
+            user.setUserRole(3);
+            userRepository.save(user);
+            ReplyKeyboardMarkup replyKeyboardMarkup = buttonController.MainMenu();
+            String res="";
+            if (language==1){
+                res="Diller sifatida foydalanishingiz mumkin";
+            }else {
+                res="Вы можете использовать его в качестве дилера";
+            }
+            executes(replyKeyboardMarkup,null,chatId,res);
         } else if (update.getMessage().hasDocument()) {
             long chatId = update.getMessage().getChatId();
             Integer status = userService.getStatus(chatId);
@@ -547,11 +593,50 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
             long chatId = update.getMessage().getChatId();
             String text = update.getMessage().getText();
             if (update.getMessage().hasLocation()){
-                Double longitude = update.getMessage().getLocation().getLongitude();
-                Double latitude = update.getMessage().getLocation().getLatitude();
-                sendMessage.setText("latitude is"+latitude+"\nlongitude is "+longitude);
-                sendMessage.setChatId(String.valueOf(chatId));
-                executes2(sendMessage);
+                UserDataBase user = userService.findUser(chatId);
+                int adminState = user.getAdminState();
+                LocationEntity locationEntity = new LocationEntity();
+                double longitude=0.00;
+                double latitude=0.00;
+                if (adminState==12){
+                    List<LocationEntity> address = locationRepository.findByAddress("Do'kon");
+                    if (address.size()>0){
+                        address.get(0).setLongitude(update.getMessage().getLocation().getLongitude());
+                        address.get(0).setLatitude(update.getMessage().getLocation().getLatitude());
+                        locationRepository.save(address.get(0));
+                        UserDataBase user1 = userService.findUser(chatId);
+                        user1.setAdminState(4);
+                        userRepository.save(user1);
+                    }else {
+                        LocationEntity locationEntity1=new LocationEntity();
+                        locationEntity1.setAddress("Do'kon");
+                        locationEntity1.setLongitude(update.getMessage().getLocation().getLongitude());
+                        locationEntity1.setLatitude(update.getMessage().getLocation().getLatitude());
+                        locationRepository.save(locationEntity1);
+                    }
+
+                    ReplyKeyboardMarkup replyKeyboardMarkup = buttonController.baseButtons();
+                    executes(replyKeyboardMarkup,null,chatId,"Kerakli bo'limni tanlang!");
+
+                }if (adminState==13){
+                    List<LocationEntity> address = locationRepository.findByAddress("Biz haqimizda");
+                    if (address.size()>0){
+                        address.get(0).setLongitude(update.getMessage().getLocation().getLongitude());
+                        address.get(0).setLatitude(update.getMessage().getLocation().getLatitude());
+                        locationRepository.save(address.get(0));
+                        UserDataBase user1 = userService.findUser(chatId);
+                        user1.setAdminState(4);
+                        userRepository.save(user1);
+                    }else {
+                        LocationEntity locationEntity1=new LocationEntity();
+                        locationEntity1.setAddress("Biz haqimizda");
+                        locationEntity1.setLongitude(update.getMessage().getLocation().getLongitude());
+                        locationEntity1.setLatitude(update.getMessage().getLocation().getLatitude());
+                        locationRepository.save(locationEntity1);
+                    }
+                    ReplyKeyboardMarkup replyKeyboardMarkup = buttonController.baseButtons();
+                    executes(replyKeyboardMarkup,null,chatId,"Kerakli bo'limni tanlang!");
+                }
             }
 
             if (chatId!=915145143){
@@ -600,65 +685,77 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                 if (signedUser != null) {
 
                     if (signedUser.getUserRole() == 1 || chatId == 915145143) {
-                        switch (text) {
-                            case "/start":
-                                this.responseText = "LORETTO kompaniyasining rasmiy telegram botiga \nXush kelibsiz !";
+                        if (text!=null) {
+                            switch (text) {
+                                case "/start":
+                                    this.responseText = "LORETTO kompaniyasining rasmiy telegram botiga \nXush kelibsiz !";
 
-                                mealName = "";
-                                description = "";
-                                categoryId = 0;
-                                videoUrl = "";
-                                count = 0;
-                                userService.setAdminStatus(4, chatId);
+                                    mealName = "";
+                                    description = "";
+                                    categoryId = 0;
+                                    videoUrl = "";
+                                    count = 0;
+                                    userService.setAdminStatus(4, chatId);
 
-                                ReplyKeyboardMarkup replyKeyboardMarkup = buttonController.baseButtons();
+                                    ReplyKeyboardMarkup replyKeyboardMarkup = buttonController.baseButtons();
 
 //                                ReplyKeyboardMarkup location = buttonController.location();
-                                executes(replyKeyboardMarkup, null, chatId, responseText);
-                                break;
+                                    executes(replyKeyboardMarkup, null, chatId, responseText);
+                                    break;
 
-                            case "Kategoriya":
-                                InlineKeyboardMarkup inlineKeyboardMarkup1 = categoryService.categoryList(0, 0);
-                                if (inlineKeyboardMarkup1.getKeyboard().isEmpty()) {
-                                    userService.setAdminStatus(1, chatId);
-                                    sendMessage.setText("Kategoriyalar mavjud emas\nKategoriya qo'shish uchun nomini kiriting: ");
+                                case "Kategoriya":
+                                    InlineKeyboardMarkup inlineKeyboardMarkup1 = categoryService.categoryList(0, 0);
+                                    if (inlineKeyboardMarkup1.getKeyboard().isEmpty()) {
+                                        userService.setAdminStatus(1, chatId);
+                                        sendMessage.setText("Kategoriyalar mavjud emas\nKategoriya qo'shish uchun nomini kiriting: ");
+                                        sendMessage.setChatId(String.valueOf(chatId));
+                                        executes2(sendMessage);
+                                    } else executes(null, inlineKeyboardMarkup1, chatId, responseText);
+
+                                    break;
+
+                                case "User":
+                                    InlineKeyboardMarkup inlineKeyboardMarkup = userService.searchUser();
+                                    executes(null, inlineKeyboardMarkup, chatId, responseText);
+
+                                    break;
+
+                                case "Xabar yuborish":
+                                    userService.setAdminStatus(8, chatId);
+                                    sendMessage.setText("Xabar matnini kiriting");
                                     sendMessage.setChatId(String.valueOf(chatId));
                                     executes2(sendMessage);
-                                } else executes(null, inlineKeyboardMarkup1, chatId, responseText);
+                                    break;
 
-                                break;
+                                case "Price yuborish!":
+                                    sendMessage.setText("Priceni yuboring!");
+                                    sendMessage.setChatId(String.valueOf(chatId));
+                                    execute(sendMessage);
+                                    UserDataBase user = userService.findUser(chatId);
+                                    user.setAdminState(11);
+                                    userRepository.save(user);
+                                    break;
 
-                            case "User":
-                                InlineKeyboardMarkup inlineKeyboardMarkup = userService.searchUser();
-                                executes(null, inlineKeyboardMarkup, chatId, responseText);
+                                case "Price olish \uD83D\uDCD5":
+                                    priceService.WriteToFile();
+                                    sendDocument(chatId, new File("src/main/resources/price.jpg"), "Diller price");
+                                    break;
 
-                                break;
+                                case "Do'kon":
+                                    UserDataBase user1 = userService.findUser(chatId);
+                                    user1.setAdminState(12);
+                                    userRepository.save(user1);
+                                    ReplyKeyboardMarkup location = buttonController.location();
+                                    executes(location, null, chatId, "Location yuboring!");
+                                    break;
 
-                            case "Reklama yuborish":
-                                userService.setAdminStatus(8, chatId);
-                                sendMessage.setText("Reklama matnini kiriting");
-                                sendMessage.setChatId(String.valueOf(chatId));
-                                executes2(sendMessage);
-                                break;
-
-                            case "Price yuborish!":
-                                sendMessage.setText("Priceni yuboring!");
-                                sendMessage.setChatId(String.valueOf(chatId));
-                                execute(sendMessage);
-                                UserDataBase user = userService.findUser(chatId);
-                                user.setAdminState(11);
-                                userRepository.save(user);
-                                break;
-
-                            case "Price olish \uD83D\uDCD5":
-                                List<PriceEntity> all = priceRepository.findAll();
-                                InputStream inputStream = ByteSource.wrap(all.get(0).getPhotoByte()).openStream();
-                                SendPhoto messagePhoto = new SendPhoto();
-                                InputFile inputFile = new InputFile(inputStream, "Price");
-                                messagePhoto.setPhoto(inputFile);
-                                messagePhoto.setChatId(String.valueOf(chatId));
-                                execute(messagePhoto);
-                                break;
+                                case "Biz haqimizda":
+                                    UserDataBase user2 = userService.findUser(chatId);
+                                    user2.setAdminState(13);
+                                    userRepository.save(user2);
+                                    ReplyKeyboardMarkup location1 = buttonController.location();
+                                    executes(location1, null, chatId, "Location yuboring!");
+                                    break;
 
 //                            case "Bugungi namoz vaqti":
 //                                ConnectToUrl connectToUrl = new ConnectToUrl();
@@ -671,103 +768,108 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
 //                                break;
 
 
-                            case "User  lar excel faylini olish":
-                                WriteToExcel writeToExcel = new WriteToExcel(userRepository);
-                                String path= "root/lorettouz/files/UsersList.xls";
-                                writeToExcel.writeToFile();
-                                sendDocument(chatId, new File(path), "Userlar ro'yxati");
-                                break;
+                                case "User  lar excel faylini olish":
+                                    WriteToExcel writeToExcel = new WriteToExcel(userRepository);
+                                    String path = "root/lorettouz/files/UsersList.xls";
+                                    writeToExcel.writeToFile();
+                                    sendDocument(chatId, new File(path), "Userlar ro'yxati");
+                                    break;
+
+                                case "Location \uD83D\uDCCD":
+                                    ReplyKeyboardMarkup replyKeyboardMarkup1 = buttonController.addressLocation();
+                                    executes(replyKeyboardMarkup1, null, chatId, "Kerakli bo'limni tanlang!");
+                                    break;
 
                                 case "User  lar ni exceldan olish":
-                                userService.setAdminStatus(10,chatId);
-                                sendMessage.setChatId(String.valueOf(chatId));
-                                sendMessage.setText("Excel faylni yuboring");
-                                executes2(sendMessage);
-                                break;
+                                    userService.setAdminStatus(10, chatId);
+                                    sendMessage.setChatId(String.valueOf(chatId));
+                                    sendMessage.setText("Excel faylni yuboring");
+                                    executes2(sendMessage);
+                                    break;
 
-                            case "Exit ↩":
-                                ReplyKeyboardMarkup replyKeyboardMarkup2 = buttonController.baseButtons();
-                                userService.setAdminStatus(4,chatId);
-                                executes(replyKeyboardMarkup2,null,chatId,"Bosh menyu");
-                                break;
-
-                            default:
-                                Integer status = userService.getStatus(chatId);
-                                if (status == 1) {
-                                    categoryName = text;
-                                    boolean isAdded = categoryService.addCategory(categoryName, parentId, chatId);
-                                    if (!isAdded) {
-                                        sendMessage.setText("Kategoriya qo'shildi");
-                                        sendMessage.setChatId(String.valueOf(chatId));
-                                        executes2(sendMessage);
-                                        categoryName = "";
-                                        parentId = 0;
-                                    } else {
-                                        sendMessage.setText("Categoriya nomi allaqachon mavjud, boshqa nom tanlang");
-                                        sendMessage.setChatId(String.valueOf(chatId));
-                                        executes2(sendMessage);
-                                    }
-                                } else if (status == 2) {
-                                    count++;
-                                    if (mealName.equals("")) {
-                                        mealName = text;
-
-                                        sendMessage.setText("o'zbek tilida ma'lumot kiriting: ");
-                                        sendMessage.setChatId(String.valueOf(chatId));
-                                        executes2(sendMessage);
-                                    } else if (description.equals("")) {
-                                        description = text;
-                                        sendMessage.setChatId(String.valueOf(chatId));
-                                        sendMessage.setText("rus tilida ma'lumot kiriting: ");
-                                        executes2(sendMessage);
-                                    } else if (videoUrl.equals("")) {
-                                        videoUrl = text;
-                                        sendMessage.setChatId(String.valueOf(chatId));
-                                        sendMessage.setText("Maxsulot suratini yuboring: ");
-                                        executes2(sendMessage);
-                                    }
-
-                                } else if (status == 3) {
-                                    InlineKeyboardMarkup inlineKeyboardMarkup2 = userService.setAdmin(text.toUpperCase());
-                                    executes(null, inlineKeyboardMarkup2, chatId, responseText);
-                                } else if (status == 6) {
-                                    count++;
-                                    if (mealName.equals("")) {
-                                        mealName = text;
-
-                                        sendMessage.setText("o'zbek tilida ma'lumot kiriting:d ");
-                                        sendMessage.setChatId(String.valueOf(chatId));
-                                        executes2(sendMessage);
-                                    } else if (description.equals("")) {
-                                        description = text;
-                                        sendMessage.setChatId(String.valueOf(chatId));
-                                        sendMessage.setText("rus tilida ma'lumot kiriting: ");
-                                        executes2(sendMessage);
-                                    } else if (videoUrl.equals("")) {
-                                        videoUrl = text;
-                                        sendMessage.setChatId(String.valueOf(chatId));
-                                        sendMessage.setText("Maxsulot suratini yuboring: ");
-                                        executes2(sendMessage);
-                                    }
-                                } else if (status == 7) {
+                                case "Exit ↩":
+                                    ReplyKeyboardMarkup replyKeyboardMarkup2 = buttonController.baseButtons();
                                     userService.setAdminStatus(4, chatId);
-                                    boolean b = categoryService.editCategory(categoryId, text);
-                                    if (b)
-                                        sendMessage.setText("Kategoriya taxrirlandi");
+                                    executes(replyKeyboardMarkup2, null, chatId, "Bosh menyu");
+                                    break;
 
-                                    else
-                                        sendMessage.setText("Kategoriya taxrirlashda muammo");
+                                default:
+                                    Integer status = userService.getStatus(chatId);
+                                    if (status == 1) {
+                                        categoryName = text;
+                                        boolean isAdded = categoryService.addCategory(categoryName, parentId, chatId);
+                                        if (!isAdded) {
+                                            sendMessage.setText("Kategoriya qo'shildi");
+                                            sendMessage.setChatId(String.valueOf(chatId));
+                                            executes2(sendMessage);
+                                            categoryName = "";
+                                            parentId = 0;
+                                        } else {
+                                            sendMessage.setText("Categoriya nomi allaqachon mavjud, boshqa nom tanlang");
+                                            sendMessage.setChatId(String.valueOf(chatId));
+                                            executes2(sendMessage);
+                                        }
+                                    } else if (status == 2) {
+                                        count++;
+                                        if (mealName.equals("")) {
+                                            mealName = text;
 
-                                    sendMessage.setChatId(String.valueOf(chatId));
-                                    executes2(sendMessage);
-                                } else if (status == 8) {
-                                    addText = text;
-                                    sendMessage.setText("Reklama rasmini yuboring");
-                                    sendMessage.setChatId(String.valueOf(chatId));
-                                    executes2(sendMessage);
-                                }
-                                break;
+                                            sendMessage.setText("o'zbek tilida ma'lumot kiriting: ");
+                                            sendMessage.setChatId(String.valueOf(chatId));
+                                            executes2(sendMessage);
+                                        } else if (description.equals("")) {
+                                            description = text;
+                                            sendMessage.setChatId(String.valueOf(chatId));
+                                            sendMessage.setText("rus tilida ma'lumot kiriting: ");
+                                            executes2(sendMessage);
+                                        } else if (videoUrl.equals("")) {
+                                            videoUrl = text;
+                                            sendMessage.setChatId(String.valueOf(chatId));
+                                            sendMessage.setText("Maxsulot suratini yuboring: ");
+                                            executes2(sendMessage);
+                                        }
 
+                                    } else if (status == 3) {
+                                        InlineKeyboardMarkup inlineKeyboardMarkup2 = userService.setAdmin(text.toUpperCase());
+                                        executes(null, inlineKeyboardMarkup2, chatId, responseText);
+                                    } else if (status == 6) {
+                                        count++;
+                                        if (mealName.equals("")) {
+                                            mealName = text;
+
+                                            sendMessage.setText("o'zbek tilida ma'lumot kiriting:d ");
+                                            sendMessage.setChatId(String.valueOf(chatId));
+                                            executes2(sendMessage);
+                                        } else if (description.equals("")) {
+                                            description = text;
+                                            sendMessage.setChatId(String.valueOf(chatId));
+                                            sendMessage.setText("rus tilida ma'lumot kiriting: ");
+                                            executes2(sendMessage);
+                                        } else if (videoUrl.equals("")) {
+                                            videoUrl = text;
+                                            sendMessage.setChatId(String.valueOf(chatId));
+                                            sendMessage.setText("Maxsulot suratini yuboring: ");
+                                            executes2(sendMessage);
+                                        }
+                                    } else if (status == 7) {
+                                        userService.setAdminStatus(4, chatId);
+                                        boolean b = categoryService.editCategory(categoryId, text);
+                                        if (b)
+                                            sendMessage.setText("Kategoriya taxrirlandi");
+
+                                        else
+                                            sendMessage.setText("Kategoriya taxrirlashda muammo");
+
+                                        sendMessage.setChatId(String.valueOf(chatId));
+                                        executes2(sendMessage);
+                                    } else if (status == 8) {
+                                        addText = text;
+                                        sendMessage.setText("Xabar rasmini yuboring");
+                                        sendMessage.setChatId(String.valueOf(chatId));
+                                        executes2(sendMessage);
+                                    }
+                                    break;
+                            }
                         }
 
                     } else {
@@ -803,10 +905,12 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                             case "Продукция \uD83D\uDCE6":
                                 InlineKeyboardMarkup inlineKeyboardMarkup = categoryService.listToUser(0, 0,chatId);
                                 executes(null, inlineKeyboardMarkup, chatId, responseText);
+                                executes(buttonController.MainMenu(),null,chatId,"Основной раздел ⬇️");
                                 break;
                             case "Maxsulotlar \uD83D\uDCE6":
                                 inlineKeyboardMarkup = categoryService.listToUser(0, 0,chatId);
                                 executes(null, inlineKeyboardMarkup, chatId, "Kerakli bo'limni tanlang!");
+                                executes(buttonController.MainMenu(),null,chatId,"Asosiy bo'lim ⬇️");
                                 break;
 
                             case "Контакты \uD83D\uDCF1":
@@ -853,11 +957,47 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                         "  «Работает в Узбекистане с 2020 года. Компания реализует все виды продукции»" +
                                         "  3 года гарантии.\nnНаш адрес: ⬇️");
                                 executes2(sendMessage);
+                                List<LocationEntity> address = locationRepository.findByAddress("Biz haqimizda");
+                                double latitude=00.00;
+                                double longitude=00.00;
+                                if (address.size()>0){
+                                    latitude=address.get(0).getLatitude();
+                                    longitude=address.get(0).getLongitude();
+                                    SendLocation sendLocation = new SendLocation(chatId+"",latitude,longitude);
+                                    execute(sendLocation);
+                                }else {
+                                    sendMessage= new SendMessage();
+                                    sendMessage.setChatId(String.valueOf(chatId));
+                                    sendMessage.setText("ERROR");
+                                    execute(sendMessage);
+                                }
 
-                                SendLocation sendLocation = new SendLocation(chatId+"",41.249568,69.164646);
-                                execute(sendLocation);
+                                break;
 
+                            case "Menu":
+                                UserDataBase user2 = userService.findUser(chatId);
+                                int language = user2.getLanguage();
+                                int userRole = user2.getUserRole();
+                                if (userRole==3){
+                                    ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+                                    if (language==1){
+                                        ReplyKeyboardMarkup replyKeyboardMarkup1 = categoryService.mainMenuToUserUZ(1);
+                                        executes(replyKeyboardMarkup1,null,chatId,"Kerakli bo'limni tanlang!");
+                                    }else {
+                                        ReplyKeyboardMarkup replyKeyboardMarkup1 = categoryService.mainMenuToUser(1);
+                                        executes(replyKeyboardMarkup1,null,chatId,"Выберите нужный раздел!");
+                                    }
+                                }else {
 
+                                    ReplyKeyboardMarkup replyKeyboardMarkup3 = null;
+                                    if (language == 1) {
+                                        replyKeyboardMarkup3 = categoryService.mainMenuToUserUZ(0);
+                                    } else {
+                                        replyKeyboardMarkup3 = categoryService.mainMenuToUser(0);
+                                    }
+
+                                    executes(replyKeyboardMarkup3, null, chatId, "Kerakli bo'limni tanlang!");
+                                }
                                 break;
 
                             case "Biz haqimizda \uD83D\uDD35":
@@ -868,14 +1008,27 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                         "3 yil kafolat beradi. \nBizning manzil: ⬇️");
                                 executes2(sendMessage);
 
-                                sendLocation = new SendLocation(chatId+"",41.249568,69.164646);
-                                execute(sendLocation);
+                                List<LocationEntity> address1 = locationRepository.findByAddress("Biz haqimizda");
+                                double latitude1=00.00;
+                                double longitude1=00.00;
+                                if (address1.size()>0){
+                                    latitude=address1.get(0).getLatitude();
+                                    longitude=address1.get(0).getLongitude();
+                                    SendLocation sendLocation = new SendLocation(chatId+"",latitude,longitude);
+                                    execute(sendLocation);
+                                }else {
+                                    sendMessage= new SendMessage();
+                                    sendMessage.setChatId(String.valueOf(chatId));
+                                    sendMessage.setText("ERROR");
+                                    execute(sendMessage);
+                                }
+
                                 break;
                             case "O'zbek tili \uD83C\uDDF8\uD83C\uDDF1":
                                 sendMessage.setText("LORETTO kompaniyasining rasmiy telegram botiga \nXush kelibsiz !");
                                 sendMessage.setChatId(String.valueOf(chatId));
                                 executes2(sendMessage);
-                                ReplyKeyboardMarkup replyKeyboardMarkup = categoryService.mainMenuToUserUZ();
+                                ReplyKeyboardMarkup replyKeyboardMarkup = categoryService.mainMenuToUserUZ(0);
                                 executes(replyKeyboardMarkup,null,chatId,"Kerakli bo'limni tanlang!");
 
                                 UserDataBase user = userService.findUser(chatId);
@@ -887,7 +1040,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 sendMessage.setChatId(String.valueOf(chatId));
                                 sendMessage.setText("Добро пожаловать в"+"\n"+"официальный телеграм-бот LORETTO");
                                 executes2(sendMessage);
-                                ReplyKeyboardMarkup replyKeyboardMarkup1 = categoryService.mainMenuToUser();
+                                ReplyKeyboardMarkup replyKeyboardMarkup1 = categoryService.mainMenuToUser(0);
                                 executes(replyKeyboardMarkup1,null,chatId,"Выберите нужный раздел!");
 
                                 UserDataBase user1 = userService.findUser(chatId);
@@ -900,17 +1053,42 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 sendMessage.setText("Bizning manzil Toshkent shahri \nAbu-Saxiy savdo markazi");
                                 sendMessage.setChatId(String.valueOf(chatId));
                                 executes2(sendMessage);
-                                sendLocation = new SendLocation(chatId+"",41.246984,69.166117);
-                                execute(sendLocation);
+                                List<LocationEntity> address2 = locationRepository.findByAddress("Do'kon");
+                                double latitude2=00.00;
+                                double longitude2=00.00;
+                                if (address2.size()>0){
+                                    latitude2=address2.get(0).getLatitude();
+                                    longitude2=address2.get(0).getLongitude();
+                                    SendLocation sendLocation = new SendLocation(chatId+"",latitude2,longitude2);
+                                    execute(sendLocation);
+                                }else {
+                                    sendMessage= new SendMessage();
+                                    sendMessage.setChatId(String.valueOf(chatId));
+                                    sendMessage.setText("ERROR");
+                                    execute(sendMessage);
+                                }
                                 break;
+
 
                             case "Hаши магазины \uD83C\uDFEA":
                                 sendMessage=new SendMessage();
                                 sendMessage.setText("Наш адрес Ташкенте,\nторговый центр Абу-Сахи");
-                                sendMessage.setChatId(String.valueOf(chatId));
-                                executes2(sendMessage);
-                                sendLocation = new SendLocation(chatId+"",41.246984,69.166117);
-                                execute(sendLocation);
+
+                                List<LocationEntity> address3 = locationRepository.findByAddress("Do'kon");
+                                double latitude3=00.00;
+                                double longitude3=00.00;
+                                if (address3.size()>0){
+                                    latitude3=address3.get(0).getLatitude();
+                                    longitude3=address3.get(0).getLongitude();
+                                    SendLocation sendLocation = new SendLocation(chatId+"",latitude3,longitude3);
+                                    execute(sendLocation);
+                                }else {
+                                    sendMessage= new SendMessage();
+                                    sendMessage.setChatId(String.valueOf(chatId));
+                                    sendMessage.setText("ERROR");
+                                    execute(sendMessage);
+                                }
+
                                 break;
                             case "Oнлайн каталог \uD83D\uDCD5":
                                 sendMessage=new SendMessage();
@@ -927,18 +1105,39 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 break;
 
                             case "Exit ↩":
-                                ReplyKeyboardMarkup replyKeyboardMarkup2 = categoryService.mainMenuToUser();
+                                ReplyKeyboardMarkup replyKeyboardMarkup2 = categoryService.mainMenuToUser(0);
                                 executes(replyKeyboardMarkup2,null,chatId,"Tilni tanlang!\nВыберите язык!");
                                 break;
 
-                            case "Price olish \uD83D\uDCD5":
-                                List<PriceEntity> all = priceRepository.findAll();
-                                InputStream inputStream = ByteSource.wrap(all.get(0).getPhotoByte()).openStream();
-                                SendPhoto messagePhoto = new SendPhoto();
-                                InputFile inputFile = new InputFile(inputStream, "Price");
-                                messagePhoto.setPhoto(inputFile);
-                                messagePhoto.setChatId(String.valueOf(chatId));
-                                execute(messagePhoto);
+                            case "Price \uD83D\uDCB5":
+                                priceService.WriteToFile();
+                                sendDocument(chatId,new File("src/main/resources/price.jpg"),"Diller price");
+                                break;
+
+                            case "/diller":
+                                UserDataBase user3 = userService.findUser(chatId);
+                                int language1 = user3.getLanguage();
+                                String res="";
+                                if (language1==1){
+                                    res="Telefon raqamingizni yuboring! Contact tugmasiga bosing ⬇️";
+                                }else {
+                                    res="Отправьте свой номер телефона! Нажмите кнопку Contact ⬇️ ";
+                                }
+                                ReplyKeyboardMarkup userContact = buttonController.getUserContact();
+                                executes(userContact,null,chatId,res);
+
+//                                UserDataBase user3 = userService.findUser(chatId);
+//                                user3.setUserRole(3);
+//                                userRepository.save(user3);
+//                                int language1 = user3.getLanguage();
+//                                String res="";
+//                                if (language1==1){
+//                                    res="Kerakli bo'limni tanlang!";
+//                                }else {
+//                                    res="Выберите нужный раздел!";
+//                                }
+//                                ReplyKeyboardMarkup replyKeyboardMarkup4 = buttonController.MainMenu();
+//                                executes(replyKeyboardMarkup4,null,chatId,res);
                                 break;
                         }
                     }

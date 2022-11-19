@@ -22,4 +22,5 @@ public class UserDataBase extends BaseDataBase {
     private int adminState;
     private int userRole;
     private int language;
+    private String phoneNumber;
 }

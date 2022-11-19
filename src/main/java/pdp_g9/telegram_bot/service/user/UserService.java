@@ -80,6 +80,22 @@ public Integer getUserRole(Long chatId){
 
     }
 
+    public InlineKeyboardMarkup addUserInline(String nickName, Long chatId, String userName){
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+        inlineKeyboardMarkup.setKeyboard(list);
+
+        List<InlineKeyboardButton> inlineKeyboardButtons = new ArrayList<>();
+
+        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+        inlineKeyboardButton.setText(nickName +" " +userName +" "+nickName +" ni qo'shish" );
+        inlineKeyboardButton.setCallbackData("add-"+chatId+"-"+nickName+"-"+userName);
+        inlineKeyboardButtons.add(inlineKeyboardButton);
+        list.add(inlineKeyboardButtons);return inlineKeyboardMarkup;
+
+    }
+
     public InlineKeyboardMarkup userList() {
         List<UserDataBase> userList = userRepository.findAll();
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
