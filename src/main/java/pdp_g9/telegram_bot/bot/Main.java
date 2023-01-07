@@ -1219,7 +1219,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
 //                                executes(replyKeyboardMarkup4,null,chatId,res);
                                 break;
 
-                            case "Изменить язык":
+                            case "Изменить язык \uD83C\uDDFA\uD83C\uDDFF\uD83C\uDDF7\uD83C\uDDFA":
                                 ReplyKeyboardMarkup languages1 = buttonController.languages();
                                 executes(languages1,null,chatId,"Выберите язык");
                                 break;
