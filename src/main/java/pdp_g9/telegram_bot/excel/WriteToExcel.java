@@ -26,69 +26,69 @@ public class WriteToExcel {
             try(FileOutputStream fileOutputStream = new FileOutputStream("root/lorettouz/files/UsersList.xls")) {
                 HSSFWorkbook xssfWorkbook = new HSSFWorkbook();
 
-                CellStyle style=xssfWorkbook.createCellStyle();
-                style.setFillForegroundColor(HSSFColor.HSSFColorPredefined.RED.getIndex());
-                style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-                style.setBorderBottom(BorderStyle.THIN);
-                style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-                style.setBorderTop(BorderStyle.THIN);
-                style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-                style.setBorderLeft(BorderStyle.THIN);
-                style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-                style.setBorderRight(BorderStyle.THIN);
-                style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-                Font font = xssfWorkbook.createFont();
-                font.setBold(true);
-                font.setUnderline(Font.U_SINGLE);
-                font.setColor(HSSFColor.HSSFColorPredefined.WHITE.getIndex());
-                style.setFont(font);
+//                CellStyle style=xssfWorkbook.createCellStyle();
+//                style.setFillForegroundColor(HSSFColor.HSSFColorPredefined.RED.getIndex());
+//                style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//                style.setBorderBottom(BorderStyle.THIN);
+//                style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+//                style.setBorderTop(BorderStyle.THIN);
+//                style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+//                style.setBorderLeft(BorderStyle.THIN);
+//                style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+//                style.setBorderRight(BorderStyle.THIN);
+//                style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+//                Font font = xssfWorkbook.createFont();
+//                font.setBold(true);
+//                font.setUnderline(Font.U_SINGLE);
+//                font.setColor(HSSFColor.HSSFColorPredefined.WHITE.getIndex());
+//                style.setFont(font);
 
 
                 HSSFSheet xssfSheet =xssfWorkbook.createSheet("Users");
                 HSSFRow row=xssfSheet.createRow(0);
                 HSSFCell cell=row.createCell(0);
                 cell.setCellValue("Ism");
-                cell.setCellStyle(style);
+//                cell.setCellStyle(style);
 //                row.createCell(0).setCellValue("name");
                 cell=row.createCell(1);
                 cell.setCellValue("adminState");
-                cell.setCellStyle(style);
+//                cell.setCellStyle(style);
 
                 cell=row.createCell(2);
                 cell.setCellValue("chatId");
-                cell.setCellStyle(style);
+//                cell.setCellStyle(style);
 
 
                 cell=row.createCell(3);
                 cell.setCellValue("nickName");
-                cell.setCellStyle(style);
+//                cell.setCellStyle(style);
 
                 cell=row.createCell(4);
                 cell.setCellValue("userRole");
-                cell.setCellStyle(style);
+//                cell.setCellStyle(style);
 
 
                 for (int i = 0; i < users.size(); i++) {
                     row=xssfSheet.createRow(i+1);
                     cell=row.createCell(0);
                     cell.setCellValue(users.get(i).getName());
-                    cell.setCellStyle(style);
+//                    cell.setCellStyle(style);
 
                     cell=row.createCell(1);
                     cell.setCellValue(users.get(i).getAdminState());
-                    cell.setCellStyle(style);
+//                    cell.setCellStyle(style);
 
                     cell=row.createCell(2);
                     cell.setCellValue(users.get(i).getChadId());
-                    cell.setCellStyle(style);
+//                    cell.setCellStyle(style);
 
                     cell=row.createCell(3);
                     cell.setCellValue(users.get(i).getNickName());
-                    cell.setCellStyle(style);
+//                    cell.setCellStyle(style);
 
                     cell=row.createCell(4);
                     cell.setCellValue(users.get(i).getUserRole());
-                    cell.setCellStyle(style);
+//                    cell.setCellStyle(style);
                 }
                 xssfWorkbook.write(fileOutputStream);
                 xssfWorkbook.close();
