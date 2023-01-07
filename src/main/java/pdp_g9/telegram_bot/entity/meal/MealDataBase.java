@@ -19,7 +19,8 @@ import javax.persistence.*;
 @Configuration
 public class MealDataBase extends BaseDataBase {
 
-    @Column(columnDefinition = "LONGTEXT")
+//    @Column(columnDefinition = "TEXT")
+    @Column(length = 2048)
     private String description;
 
     private byte[] photoByte;
