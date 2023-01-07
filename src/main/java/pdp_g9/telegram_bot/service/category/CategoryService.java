@@ -337,7 +337,7 @@ public class CategoryService {
         keyboardRow2.add(new KeyboardButton("Oнлайн каталог \uD83D\uDCD5"));
         KeyboardRow keyboardRow3=new KeyboardRow();
         KeyboardRow keyboardRow4=new KeyboardRow();
-        keyboardRow4.add(new KeyboardButton("Изменить язык"));
+        keyboardRow4.add(new KeyboardButton("Изменить язык \uD83C\uDDFA\uD83C\uDDFF\uD83C\uDDF7\uD83C\uDDFA"));
         keyboardRows.add(keyboardRow);
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
