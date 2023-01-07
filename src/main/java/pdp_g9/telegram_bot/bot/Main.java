@@ -840,7 +840,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                     List<UserDataBase> all = userRepository.findAll();
                                     for (int i = 0; i < all.size(); i++) {
                                        if (all.get(i).getUserRole()==3){
-                                           sendDocument(all.get(i).getChadId(), new File("sroot/lorettouz/files/price.jpg"), "Diller price");
+                                           sendDocument(all.get(i).getChadId(), new File("root/lorettouz/files/price.jpg"), "Diller price");
                                        }
                                     }
 
