@@ -1179,7 +1179,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 sendMessage=new SendMessage();
                                 if (userRole1==3) {
                                     priceService.WriteToFile();
-                                    sendDocument(chatId, new File("src/main/resources/price.jpg"), "Diller price");
+                                    sendDocument(chatId, new File("root/lorettouz/files/price.jpg"), "Diller price");
                                 }else {
                                     if (language2==1){
                                         sendMessage.setText("Noto'g'ri buyruq");
