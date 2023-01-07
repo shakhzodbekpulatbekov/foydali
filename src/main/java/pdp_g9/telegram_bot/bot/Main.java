@@ -1137,6 +1137,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 sendMessage=new SendMessage();
                                 sendMessage.setText("Наш адрес: \nгород Ташкент, Чиланзарский район,\n ТЦ Абу Сахи (Блок Е) 129 - магазин");
                                 sendMessage.setChatId(String.valueOf(chatId));
+                                execute(sendMessage);
                                 List<LocationEntity> address3 = locationRepository.findByAddress("Do'kon");
                                 double latitude3=00.00;
                                 double longitude3=00.00;
@@ -1149,8 +1150,9 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                     sendMessage= new SendMessage();
                                     sendMessage.setChatId(String.valueOf(chatId));
                                     sendMessage.setText("ERROR");
+                                    execute(sendMessage);
                                 }
-                                execute(sendMessage);
+
 
                                 break;
                             case "Oнлайн каталог \uD83D\uDCD5":
