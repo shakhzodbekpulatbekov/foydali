@@ -67,12 +67,16 @@ public class ButtonController {
         keyboardRow3.add(new KeyboardButton("Price olish \uD83D\uDCD5"));
         keyboardRow3.add(new KeyboardButton("Location \uD83D\uDCCD"));
 
+        KeyboardRow keyboardRow4 = new KeyboardRow();
+        keyboardRow4.add(new KeyboardButton("Dillerga price yuborish \uD83D\uDCB5"));
+
 
 
         keyboardRows.add(keyboardRow);
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
         keyboardRows.add(keyboardRow3);
+        keyboardRows.add(keyboardRow4);
         replyKeyboardMarkup.setKeyboard(keyboardRows);
 
         return replyKeyboardMarkup;
@@ -122,7 +126,7 @@ public class ButtonController {
 
         KeyboardRow keyboardRow = new KeyboardRow();
         keyboardRow.add(new KeyboardButton("O'zbek tili \uD83C\uDDF8\uD83C\uDDF1"));
-        keyboardRow.add(new KeyboardButton("Rus tili \uD83C\uDDF7\uD83C\uDDFA"));
+        keyboardRow.add(new KeyboardButton("Русский язык \uD83C\uDDF7\uD83C\uDDFA"));
         keyboardRows.add(keyboardRow);
 
         return replyKeyboardMarkup;
@@ -180,6 +184,25 @@ public class ButtonController {
         keyboardRows.add(keyboardRow);
 
         return replyKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup diller(Long chatId, String phoneNumber){
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> list= new ArrayList<>();
+        inlineKeyboardMarkup.setKeyboard(list);
+        List<InlineKeyboardButton> inlineKeyboardButtons = new ArrayList<>();
+
+        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+
+
+        inlineKeyboardButton.setText(phoneNumber+" diller sifatida foydalanmoqchi");
+        inlineKeyboardButton.setCallbackData("addDiller"+"-"+chatId+"-"+phoneNumber);
+        inlineKeyboardButtons.add(inlineKeyboardButton);
+
+        list.add(inlineKeyboardButtons);
+
+        return inlineKeyboardMarkup;
+
     }
 
 }

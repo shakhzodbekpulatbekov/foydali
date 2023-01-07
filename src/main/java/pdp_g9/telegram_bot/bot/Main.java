@@ -42,8 +42,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import static org.springframework.data.relational.core.sql.StatementBuilder.update;
-
 @Component
 public class Main extends TelegramLongPollingBot implements ReadFromExcel {
     private String responseText = "";
@@ -78,12 +76,12 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
 
     @Override
     public String getBotUsername() {
-        return "@nimadurbot_bot";
+        return "@LorettoUZ_bot";
     }
 
     @Override
     public String getBotToken() {
-        return "5490853003:AAGNaZACfN8Vd0xJbA5IjsGejcFnjrPqHIk";
+        return "5705544343:AAH7UQFcLHLlHNGB51STAq6kk0bXu0c-qDQ";
     }
 
     String categoryName = "";
@@ -109,21 +107,36 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
 
                 String[] parts = update.getCallbackQuery().getData().split("-");
                 String userChatId = parts[1];
-                String nickName = parts[2];
-                String fullName = parts[3];
+                String phoneNumber = parts[2];
 
                 UserDataBase user = userService.findUser(Long.valueOf(userChatId));
                 user.setUserRole(3);
+                user.setPhoneNumber(phoneNumber);
                 userRepository.save(user);
                 int language = user.getLanguage();
                 sendMessage=new SendMessage();
                 sendMessage.setChatId(userChatId);
+                ReplyKeyboardMarkup replyKeyboardMarkup=null;
                 if (language==1){
                     sendMessage.setText("Diller sifatida foydalanishingiz mumkin!");
+                    replyKeyboardMarkup = buttonController.MainMenu();
                 }else {
                     sendMessage.setText("Вы можете использовать его в качестве дилера");
+                    replyKeyboardMarkup=buttonController.MainMenu();
                 }
                 execute(sendMessage);
+
+                sendMessage= new SendMessage();
+                sendMessage.setChatId(String.valueOf(915145143));
+                sendMessage.setText("Diller qo'shildi raqam ⏩ "+phoneNumber);
+                execute(sendMessage);
+                String res="";
+                if (language==1){
+                    res="Menu tugmasini bosing ⬇️";
+                }else {
+                    res="Нажмите кнопку Menu ⬇️";
+                }
+                executes(replyKeyboardMarkup,null, Long.parseLong(userChatId),res);
 
 
 
@@ -445,20 +458,46 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
             }
         }else if(update.getMessage().hasContact()){
             long chatId=update.getMessage().getChat().getId();
-            UserDataBase user = userService.findUser(chatId);
             String phoneNumber = update.getMessage().getContact().getPhoneNumber();
+            if (!(phoneNumber.startsWith("+"))){
+                phoneNumber="+"+phoneNumber;
+            }
+            InlineKeyboardMarkup diller = buttonController.diller(chatId, phoneNumber);
+            executes(null,diller,915145143,"Diller qo'shish");
+            UserDataBase user = userService.findUser(chatId);
             int language = user.getLanguage();
-            user.setPhoneNumber(phoneNumber);
-            user.setUserRole(3);
-            userRepository.save(user);
-            ReplyKeyboardMarkup replyKeyboardMarkup = buttonController.MainMenu();
+
+            ReplyKeyboardMarkup replyKeyboardMarkup=null;
+
+            sendMessage= new SendMessage();
+            if (language==1){
+                sendMessage.setText("Admin ruxsatini kuting!");
+               replyKeyboardMarkup= categoryService.mainMenuToUserUZ(0);
+            }else {
+                sendMessage.setText("Дождитесь разрешения администратора!");
+                replyKeyboardMarkup=categoryService.mainMenuToUser(0);
+            }
+            sendMessage.setChatId(String.valueOf(chatId));
             String res="";
             if (language==1){
-                res="Diller sifatida foydalanishingiz mumkin";
+                res="Oddiy foydalanuvchi sifatida foydalanishni davom eting!";
             }else {
-                res="Вы можете использовать его в качестве дилера";
+                res="Продолжайте использовать как обычный пользователь";
             }
             executes(replyKeyboardMarkup,null,chatId,res);
+            execute(sendMessage);
+
+//            user.setPhoneNumber(phoneNumber);
+//            user.setUserRole(3);
+//            userRepository.save(user);
+//            ReplyKeyboardMarkup replyKeyboardMarkup = buttonController.MainMenu();
+//            String res="";
+//            if (language==1){
+//                res="Diller sifatida foydalanishingiz mumkin";
+//            }else {
+//                res="Вы можете использовать его в качестве дилера";
+//            }
+//            executes(replyKeyboardMarkup,null,chatId,res);
         } else if (update.getMessage().hasDocument()) {
             long chatId = update.getMessage().getChatId();
             Integer status = userService.getStatus(chatId);
@@ -734,6 +773,14 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                     UserDataBase user = userService.findUser(chatId);
                                     user.setAdminState(11);
                                     userRepository.save(user);
+                                    List<UserDataBase> all1 = userRepository.findAll();
+                                    for (int i = 0; i < all1.size(); i++) {
+                                        if (all1.get(i).getUserRole()==3){
+                                            sendMessage.setText("Diller price yangilandi");
+                                            sendMessage.setChatId(String.valueOf(all1.get(i).getChadId()));
+                                            execute(sendMessage);
+                                        }
+                                    }
                                     break;
 
                                 case "Price olish \uD83D\uDCD5":
@@ -785,6 +832,22 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                     sendMessage.setChatId(String.valueOf(chatId));
                                     sendMessage.setText("Excel faylni yuboring");
                                     executes2(sendMessage);
+                                    break;
+
+                                case "Dillerga price yuborish \uD83D\uDCB5":
+                                    priceService.WriteToFile();
+
+                                    List<UserDataBase> all = userRepository.findAll();
+                                    for (int i = 0; i < all.size(); i++) {
+                                       if (all.get(i).getUserRole()==3){
+                                           sendDocument(all.get(i).getChadId(), new File("src/main/resources/price.jpg"), "Diller price");
+                                       }
+                                    }
+
+                                    sendMessage.setChatId(String.valueOf(915145143));
+                                    sendMessage.setText("Dillerlarga price yuborildi");
+                                    execute(sendMessage);
+
                                     break;
 
                                 case "Exit ↩":
@@ -1005,7 +1068,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 sendMessage.setChatId(String.valueOf(chatId));
                                 sendMessage.setText("Loretto - maishiy texnika ishlab chiqaruvchi korxonasi bo'lib,\n" +
                                         "O'zbekistonda 2020 yildan buyon faoliyat olib bormoqda. Kompaniya barcha turdagi maxsulotlarga" +
-                                        "3 yil kafolat beradi. \nBizning manzil: ⬇️");
+                                        " 3 yil kafolat beradi. \nBizning manzil: ⬇️");
                                 executes2(sendMessage);
 
                                 List<LocationEntity> address1 = locationRepository.findByAddress("Biz haqimizda");
@@ -1035,7 +1098,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 user.setLanguage(1);
                                 userRepository.save(user);
                                 break;
-                            case "Rus tili \uD83C\uDDF7\uD83C\uDDFA":
+                            case "Русский язык \uD83C\uDDF7\uD83C\uDDFA":
                                 sendMessage=new SendMessage();
                                 sendMessage.setChatId(String.valueOf(chatId));
                                 sendMessage.setText("Добро пожаловать в"+"\n"+"официальный телеграм-бот LORETTO");
@@ -1110,8 +1173,22 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 break;
 
                             case "Price \uD83D\uDCB5":
-                                priceService.WriteToFile();
-                                sendDocument(chatId,new File("src/main/resources/price.jpg"),"Diller price");
+                                UserDataBase user4 = userService.findUser(chatId);
+                                int userRole1 = user4.getUserRole();
+                                int language2 = user4.getLanguage();
+                                sendMessage=new SendMessage();
+                                if (userRole1==3) {
+                                    priceService.WriteToFile();
+                                    sendDocument(chatId, new File("src/main/resources/price.jpg"), "Diller price");
+                                }else {
+                                    if (language2==1){
+                                        sendMessage.setText("Noto'g'ri buyruq");
+                                    }else {
+                                        sendMessage.setText("Неверная команда");
+                                    }
+                                    sendMessage.setChatId(String.valueOf(chatId));
+                                    execute(sendMessage);
+                                }
                                 break;
 
                             case "/diller":
@@ -1138,6 +1215,16 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
 //                                }
 //                                ReplyKeyboardMarkup replyKeyboardMarkup4 = buttonController.MainMenu();
 //                                executes(replyKeyboardMarkup4,null,chatId,res);
+                                break;
+
+                            case "Изменить язык":
+                                ReplyKeyboardMarkup languages1 = buttonController.languages();
+                                executes(languages1,null,chatId,"Выберите язык");
+                                break;
+
+                            case "Tilni o'zgartirish \uD83C\uDDFA\uD83C\uDDFF\uD83C\uDDF7\uD83C\uDDFA":
+                                ReplyKeyboardMarkup languages2 = buttonController.languages();
+                                executes(languages2,null,chatId,"Tilni tanlang");
                                 break;
                         }
                     }
