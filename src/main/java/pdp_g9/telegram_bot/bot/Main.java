@@ -1113,7 +1113,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
 
                             case "Bizning do'konlar \uD83C\uDFEA":
                                 sendMessage=new SendMessage();
-                                sendMessage.setText("Bizning Manzil:\n Toshkent Shaxar Chilonzor tumani\nAbu Saxiy savdo markazi (E Blok) 129 - do'kon");
+                                sendMessage.setText("Bizning Manzil:\nToshkent Shaxar Chilonzor tumani\nAbu Saxiy savdo markazi (E Blok) 129 - do'kon");
                                 sendMessage.setChatId(String.valueOf(chatId));
                                 executes2(sendMessage);
                                 List<LocationEntity> address2 = locationRepository.findByAddress("Do'kon");
