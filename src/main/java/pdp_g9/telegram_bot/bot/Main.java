@@ -785,7 +785,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
 
                                 case "Price olish \uD83D\uDCD5":
                                     priceService.WriteToFile();
-                                    sendDocument(chatId, new File("src/main/resources/price.jpg"), "Diller price");
+                                    sendDocument(chatId, new File("root/lorettouz/files/price.jpg"), "Diller price");
                                     break;
 
                                 case "Do'kon":

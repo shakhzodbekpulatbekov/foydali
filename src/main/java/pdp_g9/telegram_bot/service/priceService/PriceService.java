@@ -21,7 +21,7 @@ public class PriceService {
         List<PriceEntity> all = priceRepository.findAll();
         byte[] demBytes = all.get(0).getPhotoByte();
 
-        File outputFile = new File("src/main/resources/price.jpg");
+        File outputFile = new File("root/lorettouz/files/price.jpg");
 
         FileOutputStream outputStream;
 
