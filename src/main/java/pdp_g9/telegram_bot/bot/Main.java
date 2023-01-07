@@ -1018,7 +1018,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                 sendMessage.setChatId(String.valueOf(chatId));
                                 sendMessage.setText("Loretto — производитель бытовой техники.\n" +
                                         "  «Работает в Узбекистане с 2020 года. Компания реализует все виды продукции»" +
-                                        "  3 года гарантии.\nnНаш адрес: ⬇️");
+                                        "  3 года гарантии.\nНаш адрес: ⬇️");
                                 executes2(sendMessage);
                                 List<LocationEntity> address = locationRepository.findByAddress("Biz haqimizda");
                                 double latitude=00.00;
