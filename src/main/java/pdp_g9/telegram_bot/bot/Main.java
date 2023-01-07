@@ -1149,8 +1149,8 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                                     sendMessage= new SendMessage();
                                     sendMessage.setChatId(String.valueOf(chatId));
                                     sendMessage.setText("ERROR");
-                                    execute(sendMessage);
                                 }
+                                execute(sendMessage);
 
                                 break;
                             case "Oнлайн каталог \uD83D\uDCD5":
