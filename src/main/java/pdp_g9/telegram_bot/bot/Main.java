@@ -714,7 +714,6 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                         }catch (Exception e){
 
                         }
-
                     }
                     addText = "";
                     fileId = "";
@@ -1016,7 +1015,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                             case "О нас \uD83D\uDD35":
                                 sendMessage= new SendMessage();
                                 sendMessage.setChatId(String.valueOf(chatId));
-                                sendMessage.setText("Loretto — производитель бытовой техники.\n" +
+                                sendMessage.setText("Loretto — компания по производству бытовой техники.\n" +
                                         "«Работает в Узбекистане с 2020 года. Компания реализует все виды продукции»" +
                                         "  3 года гарантии.\nНаш адрес: ⬇️");
                                 executes2(sendMessage);
@@ -1066,7 +1065,7 @@ public class Main extends TelegramLongPollingBot implements ReadFromExcel {
                             case "Biz haqimizda \uD83D\uDD35":
                                 sendMessage= new SendMessage();
                                 sendMessage.setChatId(String.valueOf(chatId));
-                                sendMessage.setText("Loretto - maishiy texnika ishlab chiqaruvchi korxonasi bo'lib,\n" +
+                                sendMessage.setText("Loretto - maishiy texnika kompaniyasi bo'lib,\n" +
                                         "O'zbekistonda 2020 yildan buyon faoliyat olib bormoqda. Kompaniya barcha turdagi maxsulotlarga" +
                                         " 3 yil kafolat beradi. \nBizning manzil: ⬇️");
                                 executes2(sendMessage);
